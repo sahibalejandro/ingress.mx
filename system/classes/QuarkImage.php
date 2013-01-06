@@ -1,345 +1,288 @@
 <?php
-/**
- * QuarkPHP Framework
- * Copyright (C) 2012 Sahib Alejandro Jaramillo Leo
- * 
- * @link http://quarkphp.com
- * @license GNU General Public License (http://www.gnu.org/licenses/gpl.html)
- */
+require_once 'QuarkImageException.php';
 
-/**
- * Clase para manipular imagenes con GD2
- * @author sahib
- */
 class QuarkImage
 {
-
-  /**
-   * Ancho de la imagen
-   * 
-   * @access private
-   * @var int
-   */
-  private $_width = 0;
-
-  /**
-   * Alto de la imagen
-   * 
-   * @access private
-   * @var int
-   */
-  private $_height = 0;
-
-  /**
-   * Tipo de la imagen, correspondiente a las constantes IMAGETYPE_* de PHP
-   * 
-   * @access private
-   * @var int
-   */
-  private $_type = null;
-
-  /**
-   * Tipo MIME de la imagen
-   * 
-   * @access private
-   * @var string
-   */
-  private $_mime_type = '';
-
-  /**
-   * Calidad de las imagenes JPEG de salida
-   * 
-   * @access private
-   * @var int
-   */
-  private $_jpg_quality = 90;
-
-  /**
-   * Constructor, carga los datos de la imagen $file_path para despues manipularla,
-   * si la imagen no existe o no puede ser cargada se lanza una excepcion
-   * 
-   * @access public
-   * @param string $file_path
-   * @throws QuarkImageException
-   */
-  public function __construct($file_path)
+  private $img_file;
+  private $src_img_info;
+  private $dst_img_info;
+  
+  private $bg_color_r = 255;
+  private $bg_color_g = 255;
+  private $bg_color_b = 255;
+  
+  private $jpg_quality     = 80;
+  private $png_compression = 9;
+  private $png_filter      = null;
+  
+  private $keep_transparency = true;
+  
+  const RESIZE_PROPORTIONAL = 1;
+  const RESIZE_STRETCH      = 2;
+  const RESIZE_CROP         = 4;
+  
+  public function __construct($img_file)
   {
-
-    $img_info = getimagesize($file_path);
+    // Tasks to do in output()
+    $this->tasks        = array();
     
-    if($img_info === false){
-      throw new QuarkImageException(
-        'No se pudo leer la informacion de la imagen '. $file_path,
-        QuarkImageException::ERR_IMAGE_INFO);
-    } else {
-      // Asignar los valores a las propiedades
-      $this->_file_path  = $file_path;
-      $this->_width      = $img_info[0];
-      $this->_height     = $img_info[1];
-      $this->_image_type = $img_info[2];
-      $this->_mime_type  = $img_info['mime'];
+    $this->img_file     = $img_file;
+    $this->src_img_info = getimagesize($img_file);
+    
+    if (!$this->isImageTypeSupported($this->src_img_info[2])) {
+      die('Unsupported image');
     }
+    
+    $this->dst_img_info = $this->src_img_info;
   }
-
-  /**
-   * Devuelve la ruta del archivo de imagen, es la misma ruta
-   * que fue definida en el constructor.
-   * 
-   * @access public
-   * @return string
-   */
-  public function getFilePath()
+  
+  public function resize($w, $h, $resize_type = QuarkImage::RESIZE_PROPORTIONAL)
   {
-    return $this->_file_path;
-  }
-
-  /**
-   * Devuelve el ancho de la imagen
-   * 
-   * @access public
-   * @return int
-   */
-  public function getWidth()
-  {
-    return $this->_width;
-  }
-
-  /**
-   * Devuelve el alto de la imagen
-   * 
-   * @access public
-   * @return int
-   */
-  public function getHeight()
-  {
-    return $this->_height;
-  }
-
-  /**
-   * Devuelve el tipo de la imagen, el tipo corresponde a las constantes IMAGETYPE_*
-   * del nucleo de PHP
-   * 
-   * @access public
-   * @return int
-   */
-  public function getImageType()
-  {
-    return $this->_image_type;
-  }
-
-  /**
-   * Devuelve el tipo MIME de la imagen
-   * 
-   * @access public
-   * @return string
-   */
-  public function getMimeType()
-  {
-    return $this->_mime_type;
-  }
-
-  /**
-   * Redimensiona la imagen al ancho y alto maximo $max_w y $max_h respectivamente,
-   * si $output_file_name es null el redimensionado se aplica sobre la misma imagen
-   * del objeto, de lo contrario se guarda una copia en $output_file_name, si $crop
-   * es true, se ajusta el redimensionado al alto y ancho maximo y se hace un crop
-   * central de la imagen, si ocurre un error durante el proceso se lanza una
-   * excepcion
-   * 
-   * @access public
-   * @param int $max_w
-   * @param int $max_h
-   * @throws QuarkImageException
-   */
-  public function resize($max_w, $max_h, $output_file_name = null, $crop = false)
-  {
-    switch($this->_image_type){
-      case IMAGETYPE_JPEG:
-        $img_src = imagecreatefromjpeg($this->_file_path);
-        break;
-      default:
-        throw new QuarkImageException('resize: Tipo de imagen no sportada',
-          QuarkImageException::ERR_UNSUPPORTED_TYPE);
-        break;
+    // Check if resize will be in proportional & stretching
+    $proportional_stretch = false;
+    if ($resize_type == (self::RESIZE_PROPORTIONAL|self::RESIZE_STRETCH)) {
+      $proportional_stretch = true;
+      $resize_type          = self::RESIZE_PROPORTIONAL;
     }
-
-    if($img_src === false){
-      throw new QuarkImageException('resize: No se pudo crear la imagen fuente',
-        QuarkImageException::ERR_IMAGE_CREATE);
-    } else {
-      // Calcular las dimensiones de la nueva imagen
-      $src_x = 0;
-      $src_y = 0;
-      $dst_w = 0;
-      $dst_h = 0;
-
-      $this->computeResize(
-        // Valores de entrada
-        $this->_width,
-        $this->_height,
-        $max_w,
-        $max_h,
-        $crop,
-        // Valores de salida
-        $dst_w,
-        $dst_h,
-        $src_x,
-        $src_y
-      );
-
-      // Crear la imagen destino
-      $img_dst = imagecreatetruecolor($dst_w, $dst_h);
-
-      if($img_dst === false){
-        throw new QuarkImageException('resize: No se pudo crear la imagen destino',
-          QuarkImageException::ERR_IMAGE_CREATE);
-      } else {
-        // Copiar el contenido de la imagen fuente a la imagen destino
-        $image_copied = imagecopyresampled($img_dst, $img_src, 0, 0, 0, 0,
-          $dst_w, $dst_h, $this->_width, $this->_height);
-
-        if($image_copied && $crop){
-          $img_crop = imagecreatetruecolor($max_w, $max_h);
-          $image_copied = imagecopy(
-            $img_crop,
-            $img_dst,
-            0,
-            0,
-            $src_x,
-            $src_y,
-            $max_w,
-            $max_h
+    
+    // Calculate the new sizes
+    if ($resize_type == self::RESIZE_STRETCH) {
+      $this->dst_img_info[0] = $w;
+      $this->dst_img_info[1] = $h;
+      
+    } elseif ($resize_type == self::RESIZE_PROPORTIONAL) {
+      
+      if ($this->src_img_info[0] >= $this->src_img_info[1]) {
+        // Resize proportional based on width
+        list($this->dst_img_info[0], $this->dst_img_info[1])
+          = $this->calculateProportionalSizes(
+            $this->src_img_info[0],
+            $this->src_img_info[1],
+            $w,
+            $h,
+            $proportional_stretch
           );
-          imagedestroy($img_dst);
-          $img_dst = $img_crop;
-        }
-
-        if($image_copied === false){
-          throw new QuarkImageException('resize: No se pudo copiar la imagen',
-            QuarkImageException::ERR_IMAGE_COPY);
-        } else {
-
-          // Guardar la imagen copiada
-          if($output_file_name == null){
-            // Sobre escribir la imagen fuente
-            $output_file_name = $this->_file_path;
-
-            // Al sobre escribir la imagen fuente se cambian sus dimensiones
-            if($crop){
-              $this->_width  = $max_w;
-              $this->_height = $max_h;
-            } else {
-              $this->_width  = $dst_w;
-              $this->_height = $dst_h;
-            }
-          }
-
-          // Guardar la imagen en un archivo diferente (una copia)
-          switch($this->_image_type){
-            case IMAGETYPE_JPEG:
-              $image_created = imagejpeg($img_dst, $output_file_name,
-                $this->_jpg_quality);
-              break;
-          }
-
-          if($image_created === false){
-            throw new QuarkImageException(
-              'resize: No se pudo guardar la imagen, verifique los permisos',
-              QuarkImageException::ERR_SAVE_IMAGE);
-          } else {
-            // Devolver el objeto QuarkImage de la imagen redimensionada
-            if($this->_file_path == $output_file_name){
-              return $this;
-            } else {
-              return new QuarkImage($output_file_name);
-            }
-          }
-        }
+      
+      } elseif ($this->src_img_info[0] < $this->src_img_info[1]) {
+        // Resize proportional based on height
+        list($this->dst_img_info[1], $this->dst_img_info[0])
+          = $this->calculateProportionalSizes(
+            $this->src_img_info[1],
+            $this->src_img_info[0],
+            $h,
+            $w,
+            $proportional_stretch
+          );
       }
+    } elseif ($resize_type == self::RESIZE_CROP) {
+      
     }
   }
-
-  /**
-   * Calcula los valores para redimensionar la imagen y los guarda en los argumentos
-   * de salida
-   */
-  protected function computeResize($src_w, $src_h, $max_w, $max_h, $crop,
-    &$out_w, &$out_h, &$src_x, &$src_y)
+  
+  public function output($file_name)
   {
-    $out_w = $max_w;
-    $out_h = $max_h;
-    $src_x = 0;
-    $src_y = 0;
+    $image_type = $this->getImageTypeFromFileName($file_name);
+    if (!$this->isImageTypeSupported($image_type)) {
+      die('output image type not supported');
+    }
 
-    if($crop){
-      /*
-       * Definir si el calculo se va a realizar en base al ancho o al alto de
-       * la imagen.
-       */
-      $from_width = false;
-      if($max_w == $max_h){
-        $from_width = $src_w < $src_h;
-      } elseif($max_w > $max_h){
-        $from_width = true;
-      }
-
-      /*
-       * Calcular dimensiones para realizar crop, centrado
-       */
-      if($from_width){
-        // Calcular el nuevo alto en base al nuevo ancho
-        $out_h = round(($src_h / $src_w) * $max_w);
-      } else {
-        // Calcular el nuevo ancho en base al nuevo alto
-        $out_w = round( ($src_w / $src_h) * $max_h );
-      }
-
-      // Calcular el centro del crop
-      $src_x = round( ($out_w/2) - ($max_w/2) );
-      $src_y = round( ($out_h/2) - ($max_h/2) );
+    if ($this->src_img_info[2] == IMAGETYPE_JPEG || $this->src_img_info[2] == IMAGETYPE_JPEG2000) {
+      $src_img = imagecreatefromjpeg($this->img_file);
+    } elseif ($this->src_img_info[2] == IMAGETYPE_PNG) {
+      $src_img = imagecreatefrompng($this->img_file);
     } else {
-
-      /*
-       * Redimensionado basico
-       */
-      if($src_w >= $src_h){
-        // Calcular el nuevo alto en base al nuevo ancho
-        $out_h = round(($src_h / $src_w) * $max_w);
-      } else {
-        // Calcular el nuevo ancho en base al nuevo alto
-        $out_w = round( ($src_w / $src_h) * $max_h );
-      }
-
-      // Segundo calculo para evitar que ancho o alto sean mayores a los maximos
-      if($out_w > $max_w){
-        $out_h = round( ($out_h / $out_w) * $max_w );
-        $out_w = $max_w;
-      }
-
-      if($out_h > $max_h){
-        $out_w = round( ($out_w / $out_h) * $max_h );
-        $out_h = $max_h;
-      }
+      $src_img = imagecreatefromgif($this->img_file);
+    }
+    
+    $dst_img = imagecreatetruecolor($this->dst_img_info[0], $this->dst_img_info[1]);
+    
+    // Fill with background color
+    imagefill($dst_img, 0, 0, imagecolorallocate(
+      $dst_img,
+      $this->bg_color_r,
+      $this->bg_color_g,
+      $this->bg_color_b
+    ));
+    
+    // Preserve transparency for PNG and GIF
+    if ($this->keep_transparency
+      && ($image_type == IMAGETYPE_PNG || $image_type == IMAGETYPE_GIF)
+    ) {
+      // Use same background color for transparency
+      $transparent = imagecolorallocatealpha(
+        $dst_img,
+        $this->bg_color_r,
+        $this->bg_color_g,
+        $this->bg_color_b,
+        127
+      );
+      imagealphablending($dst_img, false);
+      imagesavealpha($dst_img, true);
+      imagecolortransparent($dst_img, $transparent);
+      imagefilledrectangle(
+        $dst_img,
+        0,
+        0,
+        $this->dst_img_info[0],
+        $this->dst_img_info[1],
+        $transparent
+      );
+    }
+    
+    $this->imgCopy(
+      $dst_img, $src_img,
+      0, 0,
+      0, 0,
+      $this->dst_img_info[0], $this->dst_img_info[1],
+      $this->src_img_info[0], $this->src_img_info[1],
+      $image_type
+    );
+    
+    // Write image file (or send to buffer)
+    if ( $image_type == IMAGETYPE_JPEG) {
+      imagejpeg($dst_img, $file_name, $this->jpg_quality);
+    } elseif ($image_type == IMAGETYPE_PNG) {
+      imagepng($dst_img, $file_name, $this->png_compression, $this->png_filter);
+    } elseif ($image_type == IMAGETYPE_GIF) {
+      imagegif($dst_img, $file_name);
+    }
+    
+    imagedestroy($src_img);
+    imagedestroy($dst_img);
+  }
+  
+  public function setBackgroundColor($red, $green, $blue)
+  {
+    $this->bg_color_r = $red;
+    $this->bg_color_g = $green;
+    $this->bg_color_b = $blue;
+  }
+  
+  public function setJPGQuality($quality)
+  {
+    $this->jpg_quality = $quality;
+  }
+  
+  public function setPNGCompression($compression)
+  {
+    $this->png_compression = $compression;
+  }
+  
+  public function setPNGFilter($filter)
+  {
+    $this->png_filter = $filter;
+  }
+  
+  public function keepTransparency($keep)
+  {
+    $this->keep_transparency = $keep;
+  }
+  
+  private function imgCopy(
+    $dst_img, $src_img,
+    $dst_x, $dst_y,
+    $src_x, $src_y,
+    $dst_w, $dst_h,
+    $src_w, $src_h,
+    $dst_imagetype
+  ) {
+    if ($dst_imagetype == IMAGETYPE_GIF) {
+      imagecopyresized(
+        $dst_img, $src_img,
+        $dst_x, $dst_y,
+        $src_x, $src_y,
+        $dst_w, $dst_h,
+        $src_w, $src_h
+      );
+    } else {
+      imagecopyresampled(
+        $dst_img, $src_img,
+        $dst_x, $dst_y,
+        $src_x, $src_y,
+        $dst_w, $dst_h,
+        $src_w, $src_h
+      );
     }
   }
-
+  
   /**
-   * Devuelve la cadena HTML necesaria para mostrar la imagen en un documento, el
-   * argumento $alt corresponde al atributo "alt" de la imagen, si necesita agregar
-   * más atributos al tag <img> se utiliza $extra_attributes
+   * Proportionally calculate the sizes of $base_size1 and $base_size2 to fit
+   * $max_size1 and $max_size2 and return the new size1 and new size2 in an array.
    * 
-   * @access public
-   * @param string $alt
-   * @param string $extra_attributes
-   * @return string
+   * @param int $base_size1 Original "size1"
+   * @param int $base_size2 Original "size2"
+   * @param int $max_size1 Max value that "size1" can have
+   * @param int $max_size2 Max value that "size2" can have
+   * @return array(new_size1, new_size2)
    */
-  public function toHTML($alt = null, $extra_attributes = null)
+  private function calculateProportionalSizes(
+    $base_size1,
+    $base_size2,
+    $max_size1,
+    $max_size2,
+    $stretch = false
+  ) {
+    
+    if (!$stretch && $base_size1 <= $max_size1 && $base_size2 <= $max_size2) {
+      $new_size1 = $base_size1;
+      $new_size2 = $base_size2;
+    } else {
+      // Output sizes
+      $new_size1 = $max_size1;
+      $new_size2 = $max_size2;
+      
+      /*
+       * Calculate new sizes.
+       *
+       * Algorithm is like:
+       *   1. Match new_size1 to max_size1.
+       *   2. Calculate the new_size2 proportional to max_size1.
+       *   3. If new_size2 is still exceeding the value of max_size2 then recalculate
+       *      the value of new_size1 proportional to max_size2 and match new_size2
+       *      to max_size2
+       */
+      if ($base_size1 > $max_size1 || ($stretch && $max_size1 >= $base_size1)) {
+        // new height = original height / original width * new width
+        $new_size2 = ($base_size2 / $base_size1) * $max_size1;
+      }
+          
+      if ($new_size2 > $max_size2) {
+        // new width = original width / original height * new height
+        $new_size1 = ($new_size1 / $new_size2) * $max_size2;
+        $new_size2 = $max_size2;
+      }
+    }
+    
+    return array(round($new_size1), round($new_size2));
+  }
+  
+  /**
+   * Check if $image_type is supported
+   * 
+   * @param int $image_type Image type value like PHP's IMATETYPE_XXX
+   * @return bool true if supported, false if not.
+   */
+  private function isImageTypeSupported($image_type)
   {
-    $img_path = QuarkStr::cleanSlashes(str_replace(
-      dirname($_SERVER['SCRIPT_FILENAME']), null, $this->_file_path));
-
-    return '<img src="'. $img_path. '" alt="'. QuarkStr::escape($alt). '" '
-      . $extra_attributes. ' width="'. $this->_width. '" height="'
-      . $this->_height. '"/>';
+    return !(
+      $image_type    !== IMAGETYPE_JPEG
+      && $image_type !== IMAGETYPE_JPEG2000
+      && $image_type !== IMAGETYPE_PNG
+      && $image_type !== IMAGETYPE_GIF
+    );
+  }
+  
+  private function getImageTypeFromFileName($file_name)
+  {
+    $ext = strtolower(array_pop(explode('.', $file_name)));
+    if ($ext == 'jpg' || $ext == 'jpeg') {
+      return IMAGETYPE_JPEG;
+    } elseif ($ext == 'png') {
+      return IMAGETYPE_PNG;
+    } elseif ($ext == 'gif') {
+      return IMAGETYPE_GIF;
+    } else {
+      return false;
+    }
   }
 }

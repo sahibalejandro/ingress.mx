@@ -1,0 +1,13 @@
+h1, h2, h3, h4, h5, h6 {
+  color: #00c2ff;
+  text-shadow: 0 0 5px rgba(0,194,255,0.5);
+}
+
+#brand_fraction {
+  color: #00c2ff;
+  text-shadow: 0 0 2px rgba(0,194,255,0.5);
+}
+
+#agent_menu {
+  color: #00c2ff;
+}

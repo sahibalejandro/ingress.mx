@@ -42,9 +42,9 @@ class AuthController extends IngressMXController
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, array(
           'code'          => $_GET['code'],
-          'client_id'     => GOOGLE_API_CLIENT_ID,
-          'client_secret' => GOOGLE_API_CLIENT_SECRET,
-          'redirect_uri'  => GOOGLE_API_REDIRECT_URI,
+          'client_id'     => INGRESSMX_GAPI_CLIENT_ID,
+          'client_secret' => INGRESSMX_GAPI_CLIENT_SECRET,
+          'redirect_uri'  => INGRESSMX_GAPI_REDIRECT_URI,
           'grant_type'    => 'authorization_code'
         ));
         $AccessToken = json_decode(curl_exec($curl));
@@ -80,20 +80,21 @@ class AuthController extends IngressMXController
          * Check if the user is already registered, if not then save his data into
          * database.
          */
-        $User = User::getByGoogleID($UserInfo->id);
+        $User = User::query()
+          ->findOne()
+          ->where(array('email' => $UserInfo->email))
+          ->exec();
         
         if (!$User) {
-          $User                 = new User();
-          $User->email          = $UserInfo->email;
-          $User->google_id      = $UserInfo->id;
-          $User->google_link    = $UserInfo->link;
+          $User = new User();
+          $User->email = $UserInfo->email;
           $User->save();
         }
 
         /*
          * Save user info in session and redirect to previous page
          */
-        $this->QuarkSess->set('userinfo', $UserInfo);
+        $this->QuarkSess->set('logged_user_id', $User->id);
         $this->QuarkSess->setAccessLevel(1);
         header('location:'.$_GET['state']);
       }

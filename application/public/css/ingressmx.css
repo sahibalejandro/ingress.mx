@@ -1,5 +1,142 @@
-#sidebar {
+/*
+ * Bootstrap overwrites
+ */
+body {
+  background: #0b0c0d;
+  color: #eee;
 }
 
-#content {
+.page-header {
+  border-bottom-color: #59fbea;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #59fbea;
+  text-shadow: 0 0 1px #59fbea;
+}
+
+strong {
+  color: #59fbea;
+}
+
+legend {
+  color: #59fbea;
+  border-color: #59fbea;
+}
+
+label {
+  color: #59fbea;
+}
+
+.alert {
+  background: none;
+  border-radius: 0;
+  text-shadow: none;
+}
+
+.alert-warning {
+  color: #ebbc4a;
+  border-color: #ebbc4a;
+}
+
+.alert-warning strong {
+  color: #ebbc4a;
+}
+
+.alert-error {
+  color: #f74e42;
+  border-color: #f74e42;
+}
+
+.alert-error strong {
+  color: #f74e42;
+}
+
+.block-help {
+  color: #242a2e;
+}
+
+.form-actions {
+  background: #242a2e;
+  border-color: #59fbea;
+  padding: 10px;
+}
+
+.btn {
+  border: none;
+  border-radius: 0;
+}
+
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:active {
+  background: #004f4a;
+  color: #59fbea;
+  text-shadow: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+.btn-primary:hover {
+  color: #fff;
+}
+
+select,
+textarea,
+input[type="text"],
+input[type="password"],
+input[type="datetime"],
+input[type="datetime-local"],
+input[type="date"],
+input[type="month"],
+input[type="time"],
+input[type="week"],
+input[type="number"],
+input[type="email"],
+input[type="url"],
+input[type="search"],
+input[type="tel"],
+input[type="color"],
+.uneditable-input {
+  background: #0b0c0d;
+  border-radius: 0;
+  border-color: #59fbea;
+  color: #fff;
+}
+
+textarea:focus,
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="datetime"]:focus,
+input[type="datetime-local"]:focus,
+input[type="date"]:focus,
+input[type="month"]:focus,
+input[type="time"]:focus,
+input[type="week"]:focus,
+input[type="number"]:focus,
+input[type="email"]:focus,
+input[type="url"]:focus,
+input[type="search"]:focus,
+input[type="tel"]:focus,
+input[type="color"]:focus,
+.uneditable-input:focus {
+  border-color: #59fbea;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+/*
+ * Ingress.mx styles
+ */
+#brand {
+  font-weight: bold;
+}
+
+#brand_name {
+  color: #ebbc4a;
+  text-shadow: 0 0 2px rgba(255,214,82,0.5);
+}
+
+#agent_menu {
+  color: #ebbc4a;
 }

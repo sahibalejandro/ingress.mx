@@ -9,9 +9,8 @@ GNU General Public License (http://www.gnu.org/licenses/gpl.html)
 <html lang="en-US">
 <head>
   <meta charset="UTF-8">
-  <base href="<?php echo Quark::inst('QuarkURL')->getBaseURL(); ?>">
   <title>Something is wrong</title>
-  <link rel="stylesheet" type="text/css" href="system/public/css/quark.css">
+  <link rel="stylesheet" type="text/css" href="<?php echo Quark::inst('QuarkURL')->getBaseURL(); ?>system/public/css/quark.css">
 </head>
 <body>
   <h2>This page is not working properly.</h2>

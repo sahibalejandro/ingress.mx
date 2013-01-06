@@ -1,28 +1,27 @@
 <?php
 class IngressMXController extends QuarkController
 {
-  protected $User;
-  protected $UserInfo;
+  protected $User = null;
 
   public function __construct()
   {
     parent::__construct();
-    $this->setDefaultAccessLevel(1);
 
-    /*
-     * Check for logged user (and not in "logout" action) and verify if his profile
-     * is complete, if is not complete redirect to profile section.
-     */
-    if ($this->QuarkSess->getAccessLevel() > 0
-      && $this->QuarkURL->getPathInfo()->action != 'logout'
-    ) {
-      $this->UserInfo = $this->QuarkSess->get('userinfo');
-      $this->User = User::getByGoogleID($this->UserInfo->id);
+    if ($this->QuarkSess->getAccessLevel() > 0) {
+      
+      $this->User = User::query()->findByPk($this->QuarkSess->get('logged_user_id'));
 
-      if ($this->User->fraction == null) {
+      $action = $this->QuarkURL->getPathInfo()->action;
+      
+      if ($this->User->user == null
+        && $action != 'profile'
+        && $action != 'logout'
+      ) {
         $this->changeActionName('profile');
       }
     }
+
+    $this->setDefaultAccessLevel(1);
   }
 
   /**
@@ -43,20 +42,63 @@ class IngressMXController extends QuarkController
       } elseif (empty($_FILES)) {
         $error_code = 3;
       } else {
-        
+        /*
+         * First try to save the uploaded image
+         */
+        $Uploader = new QuarkUpload();
+        $Uploader->setValidMimeTypes('image/jpeg', 'image/jpg', 'image/png');
+        $Uploader->setIgnoreEmpty(false);
+        $Uploader->setOverwrite(false);
+
+        $UploadResult = $Uploader->moveUploads('screenshot', INGRESSMX_PATH_SCREENSHOTS);
+        if ($UploadResult->error) {
+          $error_code = 4;
+        } else {
+          $image_src = INGRESSMX_PATH_SCREENSHOTS.'/'.$UploadResult->final_file_name;
+          $image_dst = INGRESSMX_PATH_SCREENSHOTS.'/'.$_POST['user'].'.jpg';
+          
+          // Save user data
+          try {
+            $this->User->user       = $_POST['user'];
+            $this->User->fraction   = $_POST['fraction'];
+            $this->User->save();
+            
+            // Resize the image and convert to JPG
+            $Image = new QuarkImage($image_src);
+            $Image->setJPGQuality(100);
+            $Image->resize(380, 550);
+            $Image->output($image_dst);
+            
+            chmod($image_dst, 0666);
+            unlink($image_src);
+
+            // Redirect to profile to avoid re-send post data.
+            header('Location:'.$this->QuarkURL->getURL('profile'));
+            exit;
+
+          } catch (QuarkORMException $e) {
+            $error_code = 5;
+            unlink($image_src);
+          } catch (QuarkImageException $e) {
+            $error_code = 5;
+            if (file_exists($image_dst)) {
+              unlink($image_dst);
+            }
+          }
+        }
       }
     }
 
-    $this->addViewVars(array(
-      'error_code' => $error_code
+    $this->renderView('profile.php', array(
+      'error_code'   => $error_code,
+      'UploadResult' => isset($UploadResult) ? $UploadResult : null
     ));
-    $this->renderView('profile.php');
   }
 
   public function logout()
   {
     $this->QuarkSess->kill();
-    header('location:'.$this->QuarkURL->getBaseURL());
+    header('Location:'.$this->QuarkURL->getBaseURL());
   }
 
   public function header($page_title = '', $sidebar = true)

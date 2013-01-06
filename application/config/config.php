@@ -1,14 +1,19 @@
 <?php
 /*
- * Constantes
+ * Constrants
  */
-define('GOOGLE_API_CLIENT_ID', '711947259237.apps.googleusercontent.com');
-define('GOOGLE_API_CLIENT_SECRET', 'pD6bpXKmhxJx8BWxUjESWWOC');
-define('GOOGLE_API_REDIRECT_URI', 'http://localhost/ingressmx/auth');
-define('GOOGLE_API_SCOPE', 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email');
+
+// Google API access
+define('INGRESSMX_GAPI_CLIENT_ID', '711947259237.apps.googleusercontent.com');
+define('INGRESSMX_GAPI_CLIENT_SECRET', 'pD6bpXKmhxJx8BWxUjESWWOC');
+define('INGRESSMX_GAPI_REDIRECT_URI', 'http://localhost/ingressmx/auth');
+define('INGRESSMX_GAPI_SCOPE', 'https://www.googleapis.com/auth/userinfo.email');
+
+// Paths
+define('INGRESSMX_PATH_SCREENSHOTS', 'application/public/uploads/screenshots');
 
 /*
- * Configuración del framework
+ * Framework
  */
 $config['session_name'] = 'ingressmx';
 $config['error_magic_quotes_gpc'] = false;
@@ -21,6 +26,8 @@ $db_config['default']['options']  = array();
 $db_config['default']['charset']  = 'UTF8';
 
 $routes = array(
+  /* "profile" and "logout" actions belongs to IngressMXController, so we can
+   * access throught HomeController */
   'profile' => 'home/profile',
-  'logout' => 'home/logout'
+  'logout'  => 'home/logout'
 );

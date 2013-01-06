@@ -3,37 +3,48 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <base href="<?php echo $this->QuarkURL->getBaseURL(); ?>">
   <title>
     <?php
     if ($page_title != ''):
       echo $this->QuarkStr->esc($page_title).' :: ';
     endif;
-    ?>Ingress MX
+    ?>Ingress.mx
   </title>
   <?php
   $this->prependCssFiles(
     'bootstrap.min.css',
     'bootstrap-responsive.min.css',
     'ingressmx.css'
-  )->includeCssFiles();
+  );
+  if ($this->User && $this->User->fraction):
+    $this->appendCssFiles(strtolower($this->User->fraction_name).'.css');
+  endif;
+  $this->includeCssFiles();
   ?>
 </head>
 <body>
   
   <!-- Main Navbar -->
-  <div class="navbar">
+  <div class="navbar navbar-inverse">
     <div class="navbar-inner">
-      <a class="brand" href="<?php echo $this->QuarkURL->getBaseURL(); ?>">IngressMX</a>
+      <a id="brand" class="brand"
+        href="<?php echo $this->QuarkURL->getBaseURL(); ?>">
+        <span id="brand_name">Ingress.mx</span>
+        <?php if ($this->User && $this->User->fraction): ?>
+        <span id="brand_fraction">/ <?php echo $this->User->fraction_name; ?></span>
+        <?php endif; ?>
+      </a>
       <?php if ($this->User): ?>
       <ul class="nav pull-right">
         <li class="dropdown">
-          <a href="#" class="dropdown-toogle" data-toggle="dropdown">
-            <img src="<?php echo $this->UserInfo->picture; ?>" alt="" width="20" height="20"/>
-            <?php echo $this->UserInfo->given_name; ?>
+          <a href="#" id="agent_menu" class="dropdown-toogle" data-toggle="dropdown">
+            <?php echo !$this->User->user ?
+              $this->User->email :
+              'Agente: '.$this->User->user; ?>
           </a>
           <ul class="dropdown-menu">
-            <li><a href="<?php echo $this->QuarkURL->getURL('profile'); ?>">Perfil IngressMX</a></li>
-            <li><a href="<?php echo $this->User->google_link; ?>">Perfil Google</a></li>
+            <li><a href="<?php echo $this->QuarkURL->getURL('profile'); ?>">Perfil</a></li>
             <li><a href="<?php echo $this->QuarkURL->getURL('logout'); ?>">Salir</a></li>
           </ul>
         </li>

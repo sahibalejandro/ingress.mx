@@ -6,7 +6,7 @@ $this->header('Acceso Denegado', false);
     <?php $this->renderView('layout/oauth2-fields.php'); ?>
     
     <legend>
-      Identificación de Agente
+      Autentificación de Agente
     </legend>
     <?php if (defined('OAUTH_ERROR')): ?>
     <div class="alert alert-error">
@@ -14,11 +14,11 @@ $this->header('Acceso Denegado', false);
     </div>
     <?php endif; ?>
     <p>
-      Para acceder al contenido de este sitio debes identificarte con tu
+      Para acceder al contenido de este sitio debes autenticarte con tu
       cuenta de Google.
     </p>
     <div class="form-actions">
-      <button type="submit" class="btn btn-primary btn-large">Identificarme con Google Accounts</button>
+      <button type="submit" class="btn btn-primary btn-large">Autenticarme con Google Accounts</button>
     </div>
   </fieldset>
 </form>

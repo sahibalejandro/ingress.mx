@@ -13,6 +13,15 @@ class User extends QuarkORM
    */
   public static $connection = 'default';
   
+  public function __construct()
+  {
+    parent::__construct();
+    if (!$this->is_new) {
+      $this->fraction_name = $this->fraction == 'R' ? 'RESISTANCE' : 'ENLIGTHENED';
+      $this->screenshot    = $this->user.'.jpg';
+    }
+  }
+
   /**
    * To validate your data before save to database
    *
@@ -25,20 +34,6 @@ class User extends QuarkORM
      * Validate object properties and return true on success or false on failure
      */
     return true;
-  }
-
-  /**
-   * Find a user record by his Google ID and return an User instance if found
-   * or return false if not found.
-   * 
-   * @return User|false
-   */
-  public static function getByGoogleID($google_id)
-  {
-    return User::query()
-      ->findOne()
-      ->where(array('google_id' => $google_id))
-      ->exec();
   }
 
   /**

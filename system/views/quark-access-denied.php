@@ -9,7 +9,6 @@ GNU General Public License (http://www.gnu.org/licenses/gpl.html)
 <html lang="en-US">
 <head>
   <meta charset="UTF-8">
-  <base href="<?php echo Quark::inst('QuarkURL')->getBaseURL(); ?>">
   <title>Access denied</title>
   <link rel="stylesheet" type="text/css" href="system/public/css/quark.css">
 </head>

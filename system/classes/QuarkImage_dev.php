@@ -1,7 +1,5 @@
 <?php
-require_once 'QuarkImageException.php';
-
-class QuarkImage
+class QuarkImage_dev
 {
   private $img_file;
   private $src_img_info;
@@ -36,7 +34,7 @@ class QuarkImage
     $this->dst_img_info = $this->src_img_info;
   }
   
-  public function resize($w, $h, $resize_type = QuarkImage::RESIZE_PROPORTIONAL)
+  public function resize($w, $h, $resize_type = QuarkImage_dev::RESIZE_PROPORTIONAL)
   {
     // Check if resize will be in proportional & stretching
     $proportional_stretch = false;

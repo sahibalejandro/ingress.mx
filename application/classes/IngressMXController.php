@@ -64,7 +64,7 @@ class IngressMXController extends QuarkController
             $this->User->save();
             
             // Resize the image and convert to JPG
-            $Image = new QuarkImage($image_src);
+            $Image = new QuarkImage_dev($image_src);
             $Image->setJPGQuality(100);
             $Image->resize(380, 550);
             $Image->output($image_dst);

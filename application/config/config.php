@@ -12,6 +12,9 @@ define('INGRESSMX_GAPI_SCOPE', 'https://www.googleapis.com/auth/userinfo.email')
 // Paths
 define('INGRESSMX_PATH_SCREENSHOTS', 'application/public/uploads/screenshots');
 
+// Misc
+define('INGRESSMX_DEFAULT_ROLE_ID', 3); // Agent role by default
+
 /*
  * Framework
  */
@@ -24,10 +27,3 @@ $db_config['default']['user']     = 'root';
 $db_config['default']['password'] = 'rootsql';
 $db_config['default']['options']  = array();
 $db_config['default']['charset']  = 'UTF8';
-
-$routes = array(
-  /* "profile" and "logout" actions belongs to IngressMXController, so we can
-   * access throught HomeController */
-  'profile' => 'home/profile',
-  'logout'  => 'home/logout'
-);

@@ -17,8 +17,8 @@
     'bootstrap-responsive.min.css',
     'ingressmx.css'
   );
-  if ($this->User && $this->User->fraction):
-    $this->appendCssFiles(strtolower($this->User->fraction_name).'.css');
+  if ($this->User && $this->User->faction):
+    $this->appendCssFiles(strtolower($this->User->faction_name).'.css');
   endif;
   $this->includeCssFiles();
   ?>
@@ -31,21 +31,31 @@
       <a id="brand" class="brand"
         href="<?php echo $this->QuarkURL->getBaseURL(); ?>">
         <span id="brand_name">Ingress.mx</span>
-        <?php if ($this->User && $this->User->fraction): ?>
-        <span id="brand_fraction">/ <?php echo $this->User->fraction_name; ?></span>
+        <?php if ($this->User && $this->User->faction): ?>
+        <span id="brand_faction">/ <?php echo $this->User->faction_name; ?></span>
         <?php endif; ?>
       </a>
+      <?php if ($this->user_ready): ?>
+      <ul class="nav">
+        <li><a href="">Inicio</a></li>
+        <li><a href="<?php echo $this->QuarkURL->getURL('forum'); ?>">Foro</a></li>
+        <?php foreach ($main_menu_categories as $Category): ?>
+        <li><a href="<?php echo $this->QuarkURL->getURL('categories/'.$Category->id); ?>"><?php echo $this->QuarkStr->esc($Category->name); ?></a></li>
+        <?php endforeach; ?>
+        <li><a href="http://www.ingress.com/intel" target="_blank">Intel</a></li>
+      </ul>
+      <?php endif; ?>
       <?php if ($this->User): ?>
       <ul class="nav pull-right">
         <li class="dropdown">
           <a href="#" id="agent_menu" class="dropdown-toogle" data-toggle="dropdown">
-            <?php echo !$this->User->user ?
+            <?php echo !$this->user_ready ?
               $this->User->email :
               'Agente: '.$this->User->user; ?>
           </a>
           <ul class="dropdown-menu">
             <li><a href="<?php echo $this->QuarkURL->getURL('profile'); ?>">Perfil</a></li>
-            <li><a href="<?php echo $this->QuarkURL->getURL('logout'); ?>">Salir</a></li>
+            <li><a href="<?php echo $this->QuarkURL->getURL('profile/logout'); ?>">Salir</a></li>
           </ul>
         </li>
       </ul>
@@ -61,6 +71,11 @@
   <div class="container-fluid">
     <div class="row-fluid">
       <div id="sidebar" class="span2">
+        <ul class="nav nav-pills nav-stacked">
+          <?php foreach ($secondary_menu_categories as $Category): ?>
+          <li><a href="<?php echo $this->QuarkURL->getURL('categories/'.$Category->id); ?>"><?php echo $this->QuarkStr->esc($Category->name); ?></a></li>
+          <?php endforeach; ?>
+        </ul>
       </div>
       <!-- .content -->
       <div id="content" class="span10">

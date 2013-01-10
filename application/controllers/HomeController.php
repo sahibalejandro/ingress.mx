@@ -11,6 +11,14 @@ class HomeController extends IngressMXController
 
   public function index()
   {
-    $this->renderView();
+    $posts = Posts::query()
+      ->find()
+      ->where(array('published' => 1, 'on_front_page' => 1))
+      ->order('creation_date')
+      ->exec();
+
+    $this->addViewVars(array(
+      'posts' => &$posts
+    ))->renderView();
   }
 }

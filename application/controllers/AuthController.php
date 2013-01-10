@@ -87,7 +87,9 @@ class AuthController extends IngressMXController
         
         if (!$User) {
           $User = new User();
-          $User->email = $UserInfo->email;
+          $User->email    = $UserInfo->email;
+          $User->active   = 1;
+          $User->roles_id = INGRESSMX_DEFAULT_ROLE_ID;
           $User->save();
         }
 

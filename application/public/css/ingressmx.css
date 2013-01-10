@@ -62,14 +62,11 @@ label {
   padding: 10px;
 }
 
-.btn {
+.btn,
+.btn:hover,
+.btn:active {
   border: none;
   border-radius: 0;
-}
-
-.btn-primary,
-.btn-primary:hover,
-.btn-primary:active {
   background: #004f4a;
   color: #59fbea;
   text-shadow: none;
@@ -139,4 +136,29 @@ input[type="color"]:focus,
 
 #agent_menu {
   color: #ebbc4a;
+}
+
+/*
+ * Posts
+ */
+.post {
+  border-bottom: 1px solid #fff;
+  padding-bottom: 10px;
+}
+
+
+.post-info {
+  font-size: 12px;
+}
+
+.post time {
+  text-transform: capitalize;
+}
+
+.post-content {
+  padding-top: 10px;
+}
+
+.post footer {
+  text-align: right;
 }

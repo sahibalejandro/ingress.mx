@@ -1,9 +1,10 @@
 <?php
 class IngressMXController extends QuarkController
 {
-  protected $User = null;
+  protected $User       = null;
+  protected $user_ready = false;
 
-  public function __construct()
+  public function __construct($check_profile = true)
   {
     parent::__construct();
 
@@ -11,105 +12,72 @@ class IngressMXController extends QuarkController
       
       $this->User = User::query()->findByPk($this->QuarkSess->get('logged_user_id'));
 
-      $action = $this->QuarkURL->getPathInfo()->action;
-      
-      if ($this->User->user == null
-        && $action != 'profile'
-        && $action != 'logout'
-      ) {
-        $this->changeActionName('profile');
+      $this->user_ready = ($this->User->user != null);
+
+      if ($check_profile) {
+        $action = $this->QuarkURL->getPathInfo()->action;
+        if (!$this->user_ready) {
+          header('Location:'.$this->QuarkURL->getURL('profile'));
+          exit(0);
+        }
       }
     }
 
     $this->setDefaultAccessLevel(1);
   }
 
-  /**
-   * Show (and update) user profile
-   */
-  public function profile()
+  protected function header($page_title = '', $sidebar = true)
   {
-    // Error code to show diferent messages in the view
-    $error_code = 0;
+    /*
+     * Load main/secondary menu items
+     */
+    $main_menu_categories      = array();
+    $secondary_menu_categories = array();
 
-    if (!empty($_POST)) {
-      $_POST['user'] = trim($_POST['user']);
+    // Items for the main menu
+    $main_menu_categories = Categories::query()
+      ->find()
+      ->where(array('on_main_menu' => 1))
+      ->exec();
 
-      if ($_POST['user'] == '') {
-        $error_code = 1;
-      } elseif ($_POST['fraction'] == '-') {
-        $error_code = 2;
-      } elseif (empty($_FILES)) {
-        $error_code = 3;
-      } else {
-        /*
-         * First try to save the uploaded image
-         */
-        $Uploader = new QuarkUpload();
-        $Uploader->setValidMimeTypes('image/jpeg', 'image/jpg', 'image/png');
-        $Uploader->setIgnoreEmpty(false);
-        $Uploader->setOverwrite(false);
-
-        $UploadResult = $Uploader->moveUploads('screenshot', INGRESSMX_PATH_SCREENSHOTS);
-        if ($UploadResult->error) {
-          $error_code = 4;
-        } else {
-          $image_src = INGRESSMX_PATH_SCREENSHOTS.'/'.$UploadResult->final_file_name;
-          $image_dst = INGRESSMX_PATH_SCREENSHOTS.'/'.$_POST['user'].'.jpg';
-          
-          // Save user data
-          try {
-            $this->User->user       = $_POST['user'];
-            $this->User->fraction   = $_POST['fraction'];
-            $this->User->save();
-            
-            // Resize the image and convert to JPG
-            $Image = new QuarkImage_dev($image_src);
-            $Image->setJPGQuality(100);
-            $Image->resize(380, 550);
-            $Image->output($image_dst);
-            
-            chmod($image_dst, 0666);
-            unlink($image_src);
-
-            // Redirect to profile to avoid re-send post data.
-            header('Location:'.$this->QuarkURL->getURL('profile'));
-            exit;
-
-          } catch (QuarkORMException $e) {
-            $error_code = 5;
-            unlink($image_src);
-          } catch (QuarkImageException $e) {
-            $error_code = 5;
-            if (file_exists($image_dst)) {
-              unlink($image_dst);
-            }
-          }
-        }
-      }
+    // Secondary menu items only loaded when sidebar is visible
+    if ($sidebar) {
+      $secondary_menu_categories = Categories::query()
+        ->find()
+        ->where(array('on_secondary_menu' => 1))
+        ->exec();
     }
 
-    $this->renderView('profile.php', array(
-      'error_code'   => $error_code,
-      'UploadResult' => isset($UploadResult) ? $UploadResult : null
-    ));
-  }
-
-  public function logout()
-  {
-    $this->QuarkSess->kill();
-    header('Location:'.$this->QuarkURL->getBaseURL());
-  }
-
-  public function header($page_title = '', $sidebar = true)
-  {
+    /*
+     * just render the view
+     */
     $this->renderView('layout/header.php', array(
       'page_title' => $page_title,
-      'sidebar'    => $sidebar
+      'sidebar'    => $sidebar,
+      'main_menu_categories'      => $main_menu_categories,
+      'secondary_menu_categories' => $secondary_menu_categories,
     ));
   }
 
-  public function footer()
+  /**
+   * Render a specified Post
+   * 
+   * @param Posts $Post The Post ORM instance
+   * @param bool $resume Render resume or entire content
+   * @param bool $is_front_page Render post in "Front page" mode
+   * @return IngressMXController For method linking
+   */
+  protected function renderPost($Post, $resume = false, $is_front_page = false)
+  {
+    $this->renderView('layout/post.php', array(
+      'Post'          => $Post,
+      'resume'        => $resume,
+      'is_front_page' => $is_front_page,
+    ));
+    return $this;
+  }
+
+  protected function footer()
   {
     $this->renderView('layout/footer.php');
   }

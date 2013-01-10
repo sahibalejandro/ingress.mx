@@ -1,4 +1,5 @@
 <?php
+$this->appendJsFiles('profile.js');
 $this->header('Perfil de usuario');
 ?>
 <div class="page-header">
@@ -13,7 +14,7 @@ $this->header('Perfil de usuario');
   <strong>Perfil incompleto:</strong>
   Antes de todo debes completar tu información como agente de Ingress.
 </div>
-<?php if ($error_code == 5): ?>
+<?php if ($error_code == 'db'): ?>
 <div class="alert alert-error">
   <strong>Oh noes!</strong> No se pudieron guardar tus datos, intenta de nuevo.
 </div>
@@ -24,7 +25,7 @@ $this->header('Perfil de usuario');
     <legend>Completa tu perfil</legend>
     
     <label for="user">Usuario (el que usas en Ingress):</label>
-    <?php if ($error_code == 1): ?>
+    <?php if ($error_code == 'user'): ?>
     <div class="alert alert-error">
       Escribe tu nombre de usuario
     </div>
@@ -35,35 +36,51 @@ $this->header('Perfil de usuario');
     <?php endif; ?>
     />
     
-    <label for="fraction">Fraction:</label>
-    <?php if ($error_code == 2): ?>
+    <label for="faction">Faction:</label>
+    <?php if ($error_code == 'faction'): ?>
     <div class="alert alert-error">
       Selecciona Resistance o Enlightened
     </div>
     <?php endif; ?>
-    <select name="fraction" id="fraction">
+    <select name="faction" id="faction">
       <option value="-">-- Selecciona --</option>
       <option value="R"
-      <?php if (isset($_POST['fraction']) && $_POST['fraction'] == 'R'): ?>
+      <?php if (isset($_POST['faction']) && $_POST['faction'] == 'R'): ?>
       selected="selected"
       <?php endif; ?>>RESISTANCE</option>
       <option value="E"
-      <?php if (isset($_POST['fraction']) && $_POST['fraction'] == 'E'): ?>
+      <?php if (isset($_POST['faction']) && $_POST['faction'] == 'E'): ?>
       selected="selected"
       <?php endif; ?>>ENLIGHTENED</option>
     </select>
     
+    <label for="states_id">Estado:</label>
+    <?php if ($error_code == 'state'): ?>
+    <div class="alert alert-error">
+      Selecciona el estado y ciudad
+    </div>
+    <?php endif; ?>
+    <select name="states_id" id="states_id">
+      <option value="-">-- Selecciona --</option>
+      <?php foreach (States::query()->find()->exec() as $State): ?>
+      <option value="<?php echo $State->id; ?>"><?php echo $this->QuarkStr->esc($State->name); ?></option>
+      <?php endforeach; ?>
+    </select>
+    
+    <label for="cities_id">Ciudad:</label>
+    <select name="cities_id" id="cities_id"></select>
+    
     <label for="screenshot">Imagen de verificación:</label>
     <span class="help-block">
       Para confirmar tu identidad debes
-      enviarnos una imagen (screenshot) de tu juego Ingress donde se vea el COMM abierto en la sección Fraction.
+      enviarnos una imagen (screenshot) de tu juego Ingress donde se vea tu nombre de usuario y el COMM abierto en la sección Faction.
     </span>
-    <?php if ($error_code == 3): ?>
+    <?php if ($error_code == 'nofile'): ?>
     <div class="alert alert-error">
       Selecciona tu imagen de verificación
     </div>
     <?php endif; ?>
-    <?php if ($error_code == 4): ?>
+    <?php if ($error_code == 'upload'): ?>
     <div class="alert alert-error">
       <strong>No se pudo guardar la imagen: </strong>
       <?php echo $this->QuarkStr->esc($UploadResult->error); ?>
@@ -86,12 +103,24 @@ $this->header('Perfil de usuario');
   <div class="span10"><?php echo $this->User->user; ?></div>
 </div>
 <div class="row-fluid">
-  <div class="span2"><strong>Fraction:</strong></div>
-  <div class="span10"><?php echo $this->User->fraction_name; ?></div>
+  <div class="span2"><strong>Rol:</strong></div>
+  <div class="span10"><?php echo $this->User->Role->name; ?></div>
+</div>
+<div class="row-fluid">
+  <div class="span2"><strong>Faction:</strong></div>
+  <div class="span10"><?php echo $this->User->faction_name; ?></div>
 </div>
 <div class="row-fluid">
   <div class="span2"><strong>EMail:</strong></div>
   <div class="span10"><?php echo $this->User->email; ?></div>
+</div>
+<div class="row-fluid">
+  <div class="span2"><strong>Ubicación:</strong></div>
+  <div class="span10"><?php
+    echo $this->User->City->name
+      .', '
+      .$this->User->State->name;
+  ?></div>
 </div>
 <div class="row-fluid">
   <div class="span2"><strong>Imagen de identificación:</strong></div>

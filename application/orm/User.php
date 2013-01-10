@@ -13,12 +13,30 @@ class User extends QuarkORM
    */
   public static $connection = 'default';
   
+  public $faction_name;
+  public $screenshot;
+  public $Role;
+  public $url;
+
   public function __construct()
   {
     parent::__construct();
     if (!$this->is_new) {
-      $this->fraction_name = $this->fraction == 'R' ? 'RESISTANCE' : 'ENLIGTHENED';
-      $this->screenshot    = $this->user.'.jpg';
+      $this->faction_name = $this->faction == 'R' ? 'RESISTANCE' : 'ENLIGTHENED';
+      $this->screenshot   = $this->user.'.jpg';
+      $this->Role         = $this->getParent('Roles');
+
+      // Create user url
+      $Url = new QuarkURL();
+      $this->url = $Url->getURL('profile/'.$this->id);
+
+      if ($this->states_id != null) {
+        $this->State = States::query()->findByPk($this->states_id);
+        $this->City  = Cities::query()->findByPk(array(
+          'id'        => $this->cities_id,
+          'states_id' => $this->states_id,
+        ));
+      }
     }
   }
 

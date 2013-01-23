@@ -4,9 +4,6 @@ class Posts extends QuarkORM
   public static $table      = 'posts';
   public static $connection = 'default';
 
-  private $resume;
-  private $resume_max_words;
-
   public $User;
   public $url;
 
@@ -21,25 +18,30 @@ class Posts extends QuarkORM
     }
   }
 
-  public function getResume($max_words = 150)
+  /**
+   * Get the content resume of the post, limited to $max_words words.
+   * 
+   * @param int $max_words
+   * @return string
+   */
+  public function getResume($max_words)
   {
     // Generate resume
-    if ($this->resume == null || $this->resume_max_words != $max_words) {
-      
-      $no_tags_content = trim(strip_tags($this->content));
-      $words = str_word_count($no_tags_content, 1);
-      
-      if (count($words) <= $this->resume_max_words) {
-        $this->resume = $no_tags_content;
-      } else {
-        $this->resume = implode(' ', array_slice($words, 0, $max_words)).'...';
-      }
-
-      /* Save max words to re-generate the resume if more or less words is required
-       * in future calls */
-      $this->resume_max_words = $max_words;
+    $no_tags_content = trim(strip_tags($this->content));
+    $words = str_word_count($no_tags_content, 1);
+    
+    if (count($words) <= $max_words) {
+      $resume = $no_tags_content;
+    } else {
+      $resume = implode(' ', array_slice($words, 0, $max_words)).'...';
     }
-    return $this->resume;
+
+    return $resume;
+  }
+
+  public function getCommentsCount()
+  {
+    return $this->countChilds('Posts')->exec();
   }
 
   public static function query()

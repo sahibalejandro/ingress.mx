@@ -29,6 +29,7 @@ class User extends QuarkORM
       // Create user url
       $Url = new QuarkURL();
       $this->url = $Url->getURL('profile/'.$this->id);
+      $this->html_link = '<a href="'.$this->url.'" title="Perfil de usuario">'.$this->user.'</a>';
 
       if ($this->states_id != null) {
         $this->State = States::query()->findByPk($this->states_id);

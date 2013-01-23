@@ -1,8 +1,19 @@
+/*
+ * Bootstrap overrides
+ */
+a,
+a:hover {
+  color: #28f428;
+}
+
 h1, h2, h3, h4, h5, h6 {
   color: #28f428;
   text-shadow: 0 0 5px rgba(40,244,40,0.5);
 }
 
+/*
+ * ingress.mx style overrides
+ */
 #brand_faction {
   color: #28f428;
   text-shadow: 0 0 2px rgba(40,244,40,0.5);

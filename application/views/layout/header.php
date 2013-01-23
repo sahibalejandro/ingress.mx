@@ -38,7 +38,7 @@
       <?php if ($this->user_ready): ?>
       <ul class="nav">
         <li><a href="">Inicio</a></li>
-        <li><a href="<?php echo $this->QuarkURL->getURL('forum'); ?>">Foro</a></li>
+        <li><a href="<?php echo $this->QuarkURL->getURL('categories'); ?>">Categorías</a></li>
         <?php foreach ($main_menu_categories as $Category): ?>
         <li><a href="<?php echo $this->QuarkURL->getURL('categories/'.$Category->id); ?>"><?php echo $this->QuarkStr->esc($Category->name); ?></a></li>
         <?php endforeach; ?>

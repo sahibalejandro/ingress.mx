@@ -63,18 +63,41 @@ class IngressMXController extends QuarkController
    * Render a specified Post
    * 
    * @param Posts $Post The Post ORM instance
-   * @param bool $resume Render resume or entire content
-   * @param bool $is_front_page Render post in "Front page" mode
+   * @param bool $render_style Render style
    * @return IngressMXController For method linking
    */
-  protected function renderPost($Post, $resume = false, $is_front_page = false)
+  protected function renderPost($Post, $render_style)
   {
-    $this->renderView('layout/post.php', array(
-      'Post'          => $Post,
-      'resume'        => $resume,
-      'is_front_page' => $is_front_page,
-    ));
+    switch ($render_style) {
+      case INGRESSMX_RENDER_STYLE_FRONT_PAGE:
+        $this->renderView('post/post-front-page.php', array(
+          'render_style_class' => 'front-page',
+          'Post'               => $Post,
+        ));
+        break;
+      case INGRESSMX_RENDER_STYLE_TEASER:
+        $this->renderView('post/post-teaser.php', array(
+          'render_style_class' => 'teaser',
+          'Post'               => $Post,
+        ));
+        break;
+      case INGRESSMX_RENDER_STYLE_FULL:
+        $this->renderView('post/post-full.php', array(
+          'render_style_class' => 'full',
+          'Post'               => $Post,
+        ));
+        break;
+    }
     return $this;
+  }
+
+  protected function formatDateTime($date_time)
+  {
+    return mb_convert_case(
+      strftime('%a %d, %b %Y, %R Hrs.', strtotime($date_time)),
+      MB_CASE_TITLE,
+      'UTF-8'
+    );
   }
 
   protected function footer()

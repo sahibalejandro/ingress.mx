@@ -39,9 +39,22 @@ class Posts extends QuarkORM
     return $resume;
   }
 
-  public function getCommentsCount()
+  /**
+   * Return the comments number filtered by user faction
+   */
+  public function getCommentsCount($user_faction)
   {
-    return $this->countChilds('Posts')->exec();
+    return $this->countChilds('Comments')
+      ->where(array('faction' => $user_faction))
+      ->exec();
+  }
+
+  public function getComments($user_faction)
+  {
+    return $this->getChilds('Comments')
+      ->where(array('faction' => $user_faction))
+      ->order('creation_date')
+      ->exec();
   }
 
   public static function query()

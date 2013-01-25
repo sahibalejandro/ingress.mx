@@ -164,3 +164,28 @@ input[type="color"]:focus,
   text-align: right;
 }
 
+.post.comment {
+  margin-left: 20px;
+}
+
+#frm_post_comment {
+  padding: 20px;
+}
+
+#post_comment_editor {
+  border: 1px solid #59fbea;
+}
+
+#post_comment {
+  height: 100px;
+  width: 100%;
+}
+
+#frm_comment {
+  padding-top: 20px;  
+}
+
+#comment_content {
+  width: 50%;
+  height: 100px;
+}

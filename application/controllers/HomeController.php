@@ -22,7 +22,7 @@ class HomeController extends IngressMXController
     // Get published posts filtered by 'on_front_page' and user faction
     $posts = Posts::query()
       ->find()
-      ->where(array('posts_id' => null, 'published' => 1, 'on_front_page' => 1))
+      ->where(array('published' => 1, 'on_front_page' => 1))
       ->where("faction='*' OR faction='".$this->User->faction."'")
       ->order('creation_date', 'desc')
       ->limit($posts_per_page * ($page - 1), $posts_per_page)

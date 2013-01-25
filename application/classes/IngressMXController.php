@@ -87,6 +87,12 @@ class IngressMXController extends QuarkController
           'Post'               => $Post,
         ));
         break;
+      case INGRESSMX_RENDER_STYLE_COMMENT:
+        $this->renderView('post/post-comment.php', array(
+          'render_style_class' => 'comment',
+          'PostComment'        => $Post,
+        ));
+        break;
     }
     return $this;
   }

@@ -1,6 +1,8 @@
 <div class="post <?php echo $render_style_class ?>">
   <div class="post-header">
-    <h3><a href="<?php echo $Post->url; ?>"><?php echo $this->QuarkStr->esc($Post->title); ?></a></h3>
+    <h3><a href="<?php echo $Post->url; ?>"><?php
+      echo $this->QuarkStr->esc($Post->title);
+    ?></a></h3>
     <div class="post-info">
       Fecha:
       <span class="post-time">

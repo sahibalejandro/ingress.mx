@@ -31,10 +31,12 @@ class CategoriesController extends IngressMXController
         $page = 1;
       }
 
-      // Get published posts in this category, filtered by user faction
+      /* Get published posts in this category, filtered by user faction, and ordered
+       * by stick and creation date date */
       $posts = $Category->getChilds('Posts')
-        ->where(array('posts_id' => null, 'published' => 1))
+        ->where(array('published' => 1))
         ->where("faction='*' OR faction='".$this->User->faction."'")
+        ->order('stick', 'desc')
         ->order('creation_date', 'desc')
         ->limit($posts_per_page * ($page - 1), $posts_per_page)
         ->exec();

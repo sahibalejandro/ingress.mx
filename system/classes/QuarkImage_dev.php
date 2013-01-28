@@ -272,7 +272,8 @@ class QuarkImage_dev
   
   private function getImageTypeFromFileName($file_name)
   {
-    $ext = strtolower(array_pop(explode('.', $file_name)));
+    $file_name_parts = explode('.', $file_name);
+    $ext = strtolower(array_pop($file_name_parts));
     if ($ext == 'jpg' || $ext == 'jpeg') {
       return IMAGETYPE_JPEG;
     } elseif ($ext == 'png') {

@@ -4,16 +4,16 @@
  */
 
 // Email contact
-define('INGRESSMX_EMAIL_SMTP_HOST', 'mail.ingress.mx');
+define('INGRESSMX_EMAIL_SMTP_HOST', '');
 define('INGRESSMX_EMAIL_SMTP_PORT', 26);
-define('INGRESSMX_EMAIL_ACCOUNT', 'admin@ingress.mx');
-define('INGRESSMX_EMAIL_ACCOUNT_NAME', 'ingress.mx');
-define('INGRESSMX_EMAIL_PASSWORD', 'enlamadre');
+define('INGRESSMX_EMAIL_ACCOUNT', '');
+define('INGRESSMX_EMAIL_ACCOUNT_NAME', '');
+define('INGRESSMX_EMAIL_PASSWORD', '');
 
 // Google API access
-define('INGRESSMX_GAPI_CLIENT_ID', '711947259237.apps.googleusercontent.com');
-define('INGRESSMX_GAPI_CLIENT_SECRET', 'pD6bpXKmhxJx8BWxUjESWWOC');
-define('INGRESSMX_GAPI_REDIRECT_URI', 'http://localhost/ingressmx/auth');
+define('INGRESSMX_GAPI_CLIENT_ID', '');
+define('INGRESSMX_GAPI_CLIENT_SECRET', '');
+define('INGRESSMX_GAPI_REDIRECT_URI', '');
 define('INGRESSMX_GAPI_SCOPE', 'https://www.googleapis.com/auth/userinfo.email');
 
 // Paths
@@ -35,11 +35,9 @@ define('INGRESSMX_RENDER_STYLE_FULL', 4);
 $config['session_name'] = 'ingressmx';
 $config['error_magic_quotes_gpc'] = false;
 $config['auto_includes'] = array('ingressmx_functions.php');
-
-$db_config['default']['host']     = 'localhost';
-$db_config['default']['database'] = 'ingressmx';
-$db_config['default']['user']     = 'root';
-$db_config['default']['password'] = 'rootsql';
+$db_config['default']['database'] = '';
+$db_config['default']['user']     = '';
+$db_config['default']['password'] = '';
 $db_config['default']['options']  = array();
 $db_config['default']['charset']  = 'UTF8';
 

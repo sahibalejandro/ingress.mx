@@ -13,13 +13,14 @@ class AdminUsersController extends IngressMXController
 
   public function index()
   {
-    $unauthorized_users = User::query()
+    $users = User::query()
       ->find()
-      ->where(array('authorized' => 0))
+      ->order('authorized')
+      ->order('id')
       ->exec();
 
     $this->addViewVars(array(
-      'unauthorized_users' => $unauthorized_users,
+      'users' => &$users,
     ))->renderView();
   }
 

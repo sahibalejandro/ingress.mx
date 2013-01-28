@@ -132,6 +132,19 @@ textarea[readonly] {
   border-color: #444;
 }
 
+.table th,
+.table td,
+.table-bordered,
+.table-bordered th,
+.table-bordered td {
+  border-color: #59fbea;
+}
+
+.table th {
+  color: #ebbc4a;
+  text-align: center;
+}
+
 /*
  * ingress.mx styles
  */
@@ -160,6 +173,14 @@ textarea[readonly] {
   margin-top: 20px;
   padding-top: 20px;
   text-align: center;
+}
+
+.resistance {
+  color: #00c2ff;
+}
+
+.enligthened {
+  color: #28f428;
 }
 
 /*

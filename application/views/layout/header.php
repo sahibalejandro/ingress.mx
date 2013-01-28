@@ -82,7 +82,7 @@
   <div class="container-fluid">
     <div class="row-fluid">
       <!-- Side bar -->
-      <div id="sidebar" class="span2">
+      <div id="sidebar" class="span2 hidden-phone">
         <ul class="nav nav-pills nav-stacked">
           <?php foreach ($secondary_menu_categories as $Category): ?>
           <li><a href="<?php echo $this->QuarkURL->getURL('categories/'.$Category->id); ?>"><?php echo $this->QuarkStr->esc($Category->name); ?></a></li>

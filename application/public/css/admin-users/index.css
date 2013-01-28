@@ -1,0 +1,9 @@
+.table tbody td.cell_join_date,
+.table tbody td.cell_faction,
+.table tbody td.cell_role {
+  text-align: center;
+}
+
+.cell_actions {
+  width: 20%;
+}

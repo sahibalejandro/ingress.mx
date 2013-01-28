@@ -37,7 +37,7 @@ class CategoriesController extends IngressMXController
         ->where(array('published' => 1))
         ->where("faction='*' OR faction='".$this->User->faction."'")
         ->order('stick', 'desc')
-        ->order('creation_date', 'desc')
+        ->order('id', 'desc')
         ->limit($posts_per_page * ($page - 1), $posts_per_page)
         ->exec();
 

@@ -1,5 +1,5 @@
 <?php
-$this->header('Acceso Denegado', false);
+$this->header('ingress.mx - Comunidad Mexicana Ingress', false);
 ?>
 <form action="https://accounts.google.com/o/oauth2/auth" method="get">
   <fieldset>
@@ -14,7 +14,7 @@ $this->header('Acceso Denegado', false);
     </div>
     <?php endif; ?>
     <p>
-      Para acceder al contenido de este sitio debes autenticarte con tu
+      Para acceder al contenido de la comunidad debes autenticarte con tu
       cuenta de Google.
     </p>
     <div class="form-actions">

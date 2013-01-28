@@ -1,11 +1,16 @@
 /**
- * Script for the view "views/profile.php"
+ * Script for the view "views/profile/index.php"
  */
 $(document).on('ready', function ()
 {
   $('#states_id').on('change', function (e)
   {
     load_cities(this.value);
+  });
+
+  $('#frm_profile').on('submit', function (e)
+  {
+    $('#btn_submit').prop('disabled', 'disabled');
   });
 });
 

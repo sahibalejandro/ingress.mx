@@ -122,6 +122,16 @@ input[type="color"]:focus,
   box-shadow: none;
 }
 
+input[disabled],
+select[disabled],
+textarea[disabled],
+input[readonly],
+select[readonly],
+textarea[readonly] {
+  background-color: #111;
+  border-color: #444;
+}
+
 /*
  * ingress.mx styles
  */
@@ -143,6 +153,15 @@ input[type="color"]:focus,
   border-top: 1px solid #59fbea;
 }
 
+#footer {
+  border-top: 1px solid #444;
+  color: #888;
+  font-size: 11px;
+  margin-top: 20px;
+  padding-top: 20px;
+  text-align: center;
+}
+
 /*
  * Posts
  */
@@ -153,6 +172,11 @@ input[type="color"]:focus,
 
 .post .post-header {
   padding-bottom: 10px;
+}
+
+.post .post-info {
+  color: #EBBC4A;
+  font-size: 10px;
 }
 
 .post .post-content {
@@ -166,6 +190,7 @@ input[type="color"]:focus,
 
 .post.comment {
   margin-left: 20px;
+  padding-top: 10px;
 }
 
 #frm_post_comment {
@@ -188,4 +213,8 @@ input[type="color"]:focus,
 #comment_content {
   width: 50%;
   height: 100px;
+}
+
+#comment_error_msg {
+  display: none;
 }

@@ -17,7 +17,18 @@ class Comments extends QuarkORM
   
   public function __construct()
   {
-    if (!$this->is_new) {
+    parent::__construct();
+    if ($this->is_new == false) {
+      $this->populate(); 
+    }
+  }
+
+  /**
+   * Populate object with extra properties, like $this->User
+   */
+  private function populate()
+  {
+    if (!isset($this->User)) {
       $this->User = $this->getParent('User');
     }
   }
@@ -29,11 +40,32 @@ class Comments extends QuarkORM
    */
   protected function validate()
   {
-    /**
-     * TODO:
-     * Validate object properties and return true on success or false on failure
-     */
+    // Sanitize comment data
+    settype($this->posts_id, 'int');
+    settype($this->users_id, 'int');
+    $this->faction = trim($this->faction);
+    $this->content = trim($this->content);
+
+    // Validate data
+    if ($this->posts_id == 0 || $this->users_id == 0) {
+      return false;
+    }
+
+    if ($this->faction == '' || $this->content == '') {
+      return false;
+    }
+
     return true;
+  }
+
+  public function save()
+  {
+    if (parent::save() == false){
+      return false;
+    } else {
+      $this->populate();
+      return true;
+    }
   }
 
   /**
@@ -45,5 +77,10 @@ class Comments extends QuarkORM
   public static function query()
   {
     return new QuarkORMQueryBuilder(__CLASS__);
+  }
+
+  public static function create()
+  {
+    return new self();
   }
 }

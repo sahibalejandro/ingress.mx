@@ -24,10 +24,11 @@
   ?>
 </head>
 <body>
-  
   <!-- Main Navbar -->
   <div class="navbar navbar-inverse">
     <div class="navbar-inner">
+      
+      <!-- Brand -->
       <a id="brand" class="brand"
         href="<?php echo $this->QuarkURL->getBaseURL(); ?>">
         <span id="brand_name">Ingress.mx</span>
@@ -35,7 +36,10 @@
         <span id="brand_faction">/ <?php echo $this->User->faction_name; ?></span>
         <?php endif; ?>
       </a>
-      <?php if ($this->user_ready): ?>
+      <!-- // Brand -->
+      
+      <?php if ($this->User): ?>
+      <!-- Common menu -->
       <ul class="nav">
         <li><a href="">Inicio</a></li>
         <li><a href="<?php echo $this->QuarkURL->getURL('categories'); ?>">Categorías</a></li>
@@ -44,21 +48,28 @@
         <?php endforeach; ?>
         <li><a href="http://www.ingress.com/intel" target="_blank">Intel</a></li>
       </ul>
+      <!-- // Common menu -->
       <?php endif; ?>
+      
       <?php if ($this->User): ?>
+      <!-- User menu -->
       <ul class="nav pull-right">
         <li class="dropdown">
           <a href="#" id="agent_menu" class="dropdown-toogle" data-toggle="dropdown">
-            <?php echo !$this->user_ready ?
+            <?php echo !$this->user_profile_completed ?
               $this->User->email :
               'Agente: '.$this->User->user; ?>
           </a>
           <ul class="dropdown-menu">
             <li><a href="<?php echo $this->QuarkURL->getURL('profile'); ?>">Perfil</a></li>
+            <?php if ($this->User->roles_id == INGRESSMX_ROLE_ADMIN): ?>
+            <li><a href="<?php echo $this->QuarkURL->getURL('admin'); ?>">Administración</a></li>
+            <?php endif; ?>
             <li><a href="<?php echo $this->QuarkURL->getURL('profile/logout'); ?>">Salir</a></li>
           </ul>
         </li>
       </ul>
+      <!-- // User menu -->
       <?php endif; ?>
     </div>
   </div>
@@ -70,6 +81,7 @@
   <!-- .container-fluid -->
   <div class="container-fluid">
     <div class="row-fluid">
+      <!-- Side bar -->
       <div id="sidebar" class="span2">
         <ul class="nav nav-pills nav-stacked">
           <?php foreach ($secondary_menu_categories as $Category): ?>
@@ -77,6 +89,7 @@
           <?php endforeach; ?>
         </ul>
       </div>
+      <!-- // Side bar -->
       <!-- .content -->
       <div id="content" class="span10">
   <?php endif; ?>

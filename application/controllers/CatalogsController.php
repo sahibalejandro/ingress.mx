@@ -3,7 +3,9 @@ class CatalogsController extends IngressMXController
 {
   public function __construct()
   {
-    parent::__construct(false);
+    /* Call parent constructor without profile & status check to avoid infinite
+     * redirections :P */
+    parent::__construct(false, false);
   }
 
   public function cities()

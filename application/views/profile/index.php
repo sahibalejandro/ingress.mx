@@ -1,6 +1,6 @@
 <?php
-$this->appendJsFiles('profile.js');
-$this->header('Perfil de usuario');
+$this->appendJsFiles('profile/index.js');
+$this->header('Perfil de usuario', false);
 ?>
 <div class="page-header">
   <h1>Perfil de agente</h1>
@@ -19,7 +19,7 @@ $this->header('Perfil de usuario');
   <strong>Oh noes!</strong> No se pudieron guardar tus datos, intenta de nuevo.
 </div>
 <?php endif; ?>
-<form method="post" action="<?php echo $this->QuarkURL->getURL('profile'); ?>"
+<form id="frm_profile" method="post" action="<?php echo $this->QuarkURL->getURL('profile'); ?>"
   enctype="multipart/form-data">
   <fieldset>
     <legend>Completa tu perfil</legend>
@@ -89,7 +89,7 @@ $this->header('Perfil de usuario');
     <input type="file" id="screenshot" name="screenshot" />
     <span class="help-block">Solo se acepta imagenes JPG o PNG</span>
     <div class="form-actions">
-      <button type="submit" class="btn btn-primary">Completar perfil</button>
+      <button type="submit" id="btn_submit" class="btn btn-primary">Completar perfil</button>
     </div>
   </fieldset>
 </form>
@@ -98,6 +98,13 @@ $this->header('Perfil de usuario');
  * The following HTML block is shown when the user has completed his profile.
  */
 ?>
+<?php if ($error_code == 'admin-email'): ?>
+<div class="alert alert-error">
+  <strong>Error:</strong>
+  No se ha podido notificar al administrador sobre tu solicitud de activación, por favor envia un correo
+  a <strong>admin@ingress.mx</strong> para acelerar el proceso de activación.
+</div>
+<?php endif; ?>
 <div class="row-fluid">
   <div class="span2"><strong>Agente:</strong></div>
   <div class="span10"><?php echo $this->User->user; ?></div>

@@ -3,6 +3,13 @@
  * Constrants
  */
 
+// Email contact
+define('INGRESSMX_EMAIL_SMTP_HOST', 'mail.ingress.mx');
+define('INGRESSMX_EMAIL_SMTP_PORT', 26);
+define('INGRESSMX_EMAIL_ACCOUNT', 'admin@ingress.mx');
+define('INGRESSMX_EMAIL_ACCOUNT_NAME', 'ingress.mx');
+define('INGRESSMX_EMAIL_PASSWORD', 'enlamadre');
+
 // Google API access
 define('INGRESSMX_GAPI_CLIENT_ID', '711947259237.apps.googleusercontent.com');
 define('INGRESSMX_GAPI_CLIENT_SECRET', 'pD6bpXKmhxJx8BWxUjESWWOC');
@@ -12,18 +19,22 @@ define('INGRESSMX_GAPI_SCOPE', 'https://www.googleapis.com/auth/userinfo.email')
 // Paths
 define('INGRESSMX_PATH_SCREENSHOTS', 'application/public/uploads/screenshots');
 
-// Misc
-define('INGRESSMX_DEFAULT_ROLE_ID', 3); // Agent role by default
+// Roles ID
+define('INGRESSMX_ROLE_ADMIN', 1);
+define('INGRESSMX_ROLE_PUBLISHER', 2);
+define('INGRESSMX_ROLE_AGENT', 3);
+
+// Post render styles
 define('INGRESSMX_RENDER_STYLE_FRONT_PAGE', 1);
 define('INGRESSMX_RENDER_STYLE_TEASER', 2);
 define('INGRESSMX_RENDER_STYLE_FULL', 4);
-define('INGRESSMX_RENDER_STYLE_COMMENT', 8);
 
 /*
  * Framework
  */
 $config['session_name'] = 'ingressmx';
 $config['error_magic_quotes_gpc'] = false;
+$config['auto_includes'] = array('ingressmx_functions.php');
 
 $db_config['default']['host']     = 'localhost';
 $db_config['default']['database'] = 'ingressmx';

@@ -3,7 +3,9 @@ class ProfileController extends IngressMXController
 {
   public function __construct()
   {
-    parent::__construct(false);
+    /* Call parent constructor without profile & status check to avoid infinite
+     * redirections :P */
+    parent::__construct(false, false);
   }
 
   /**
@@ -59,9 +61,57 @@ class ProfileController extends IngressMXController
             chmod($image_dst, 0666);
             unlink($image_src);
 
-            // Redirect to profile to avoid re-send post data.
-            header('Location:'.$this->QuarkURL->getURL('profile'));
-            exit;
+            /* Send a email to the user for notify that his account will
+             * be authorized soon.
+             *
+             * If send fails, we can continue the process, the user will
+             * be notified in the site that their account need to be authorized.
+             */
+            $PHPMailer = ingressmx_create_phpmailer();
+            try {
+              $PHPMailer->Subject = 'Cuenta en proceso de autorización';
+              $PHPMailer->AddAddress($this->User->email, $this->User->user);
+              $PHPMailer->Body = $this->renderView(
+                'email/user-pending-authorization.php',
+                array('User' => $this->User),
+                true
+              );
+              $PHPMailer->Send();
+            } catch (phpmailerException $e) {
+              Quark::log('Error al enviar el email de notificación de autorización al usuario: '
+                .$this->User->user.' ('.$e->errorMessage().')');
+            }
+
+            /* Generate unique auth token to avoid invalid authorizations via URL
+             * the URL for authorization is defined in the view:
+             * "email/admin-authorization-request.php" */
+            $auth_token = ingressmx_generate_auth_token($this->User);
+            
+            /* Send a email to the administrator for notify that a new account
+             * needs to be verified. */
+            $PHPMailer = ingressmx_create_phpmailer();
+            try {
+              $PHPMailer->Subject = 'Solicitúd de verificación de cuenta';
+              $PHPMailer->AddAddress('admin@ingress.mx', 'ingress.mx');
+              $PHPMailer->Body = $this->renderView(
+                'email/admin-authorization-request.php',
+                array(
+                  'User'       => $this->User,
+                  'auth_token' => $auth_token
+                ),
+                true
+              );
+              $PHPMailer->Send();
+
+              // Redirect to profile to avoid re-send post data.
+              header('Location:'.$this->QuarkURL->getURL('profile'));
+              exit;
+
+            } catch (phpmailerException $e) {
+              $error_code = 'admin-email';
+              Quark::log('Error al enviar email al administrador para autorizar al usuario: '
+                .$this->User->user.' ('.$e->errorMessage().')');
+            }
 
           } catch (QuarkORMException $e) {
             $error_code = 'db';
@@ -71,10 +121,10 @@ class ProfileController extends IngressMXController
       }
     }
 
-    $this->renderView('profile.php', array(
+    $this->addViewVars(array(
       'error_code'   => $error_code,
       'UploadResult' => isset($UploadResult) ? $UploadResult : null
-    ));
+    ))->renderView();
   }
 
   public function logout()

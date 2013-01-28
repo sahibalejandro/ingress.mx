@@ -21,23 +21,36 @@ class User extends QuarkORM
   public function __construct()
   {
     parent::__construct();
+    
     if (!$this->is_new) {
-      $this->faction_name = $this->faction == 'R' ? 'RESISTANCE' : 'ENLIGTHENED';
-      $this->screenshot   = $this->user.'.jpg';
-      $this->Role         = $this->getParent('Roles');
+      $this->populate();
+    }
+  }
 
-      // Create user url
-      $Url = new QuarkURL();
-      $this->url = $Url->getURL('profile/'.$this->id);
-      $this->html_link = '<a href="'.$this->url.'" title="Perfil de usuario">'.$this->user.'</a>';
+  public function save()
+  {
+    $return = parent::save();
+    $this->populate();
+    return $return;
+  }
 
-      if ($this->states_id != null) {
-        $this->State = States::query()->findByPk($this->states_id);
-        $this->City  = Cities::query()->findByPk(array(
-          'id'        => $this->cities_id,
-          'states_id' => $this->states_id,
-        ));
-      }
+  private function populate()
+  {
+    $this->faction_name = $this->faction == 'R' ? 'RESISTANCE' : 'ENLIGTHENED';
+    $this->screenshot   = $this->user.'.jpg';
+    $this->Role         = $this->getParent('Roles');
+
+    // Create user url
+    $Url = new QuarkURL();
+    $this->url = $Url->getURL('profile/'.$this->id);
+    $this->html_link = '<a href="'.$this->url.'" title="Perfil de usuario">'.$this->user.'</a>';
+
+    if ($this->states_id != null) {
+      $this->State = States::query()->findByPk($this->states_id);
+      $this->City  = Cities::query()->findByPk(array(
+        'id'        => $this->cities_id,
+        'states_id' => $this->states_id,
+      ));
     }
   }
 

@@ -1,0 +1,9 @@
+#reason_denial {
+  width: 50%;
+  height: 150px;
+}
+
+#done_msg,
+#authorize_error_msg {
+  display: none;
+}

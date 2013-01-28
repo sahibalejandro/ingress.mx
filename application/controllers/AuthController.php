@@ -77,8 +77,8 @@ class AuthController extends IngressMXController
         $this->__quarkAccessDenied();
       } else {
         /*
-         * Check if the user is already registered, if not then save his data into
-         * database.
+         * Check if the user is already registered, or create the new user record
+         * into data base.
          */
         $User = User::query()
           ->findOne()
@@ -87,9 +87,10 @@ class AuthController extends IngressMXController
         
         if (!$User) {
           $User = new User();
-          $User->email    = $UserInfo->email;
-          $User->active   = 1;
-          $User->roles_id = INGRESSMX_DEFAULT_ROLE_ID;
+          $User->email      = $UserInfo->email;
+          $User->active     = 0;
+          $User->authorized = 0;
+          $User->roles_id   = INGRESSMX_ROLE_AGENT;
           $User->save();
         }
 

@@ -1,29 +1,72 @@
 <?php
 class IngressMXController extends QuarkController
 {
-  protected $User       = null;
-  protected $user_ready = false;
+  /**
+   * Logged user data, this is NULL if no user is logged in.
+   * 
+   * @var User
+   */
+  protected $User = null;
 
-  public function __construct($check_profile = true)
+  /**
+   * Flag to know if the user has completed their profile
+   * 
+   * @var bool
+   */
+  protected $user_profile_completed = false;
+
+  /**
+   * Access role IDs, this need to be defined in the child controller's __construct()
+   * using method setRoleAccess()
+   * 
+   * @var array
+   */
+  private $access_role_ids = array();
+
+  /**
+   * Controller constructor, if $check_user_profile is TRUE then validate if the user
+   * has completed their profile information, if is not complete redirect to profile
+   * section to force to complete it.
+   */
+  public function __construct($check_user_profile = true, $check_user_status = true)
   {
     parent::__construct();
 
     if ($this->QuarkSess->getAccessLevel() > 0) {
       
       $this->User = User::query()->findByPk($this->QuarkSess->get('logged_user_id'));
+      $this->user_profile_completed = ($this->User->user != null);
 
-      $this->user_ready = ($this->User->user != null);
+      // Check if the user has completed their profile
+      if ($check_user_profile && !$this->user_profile_completed) {
+        header('Location:'.$this->QuarkURL->getURL('profile'));
+        exit(0);
+      }
 
-      if ($check_profile) {
-        $action = $this->QuarkURL->getPathInfo()->action;
-        if (!$this->user_ready) {
-          header('Location:'.$this->QuarkURL->getURL('profile'));
+      // Check if the user is inactive or unauthorized
+      if ($check_user_status
+        && ($this->User->active == 0 || $this->User->authorized == 0)
+      ) {
+        header('Location:'.$this->QuarkURL->getURL('user-inactive'));
+        exit(0);
+      }
+
+      /* Check role access, if no roles are defined for this controller then all
+       * roles can see it */
+      if (count($this->access_role_ids) > 0) {
+        if (array_search($this->User->roles_id, $this->access_role_ids) === false) {
+          header('Location:'.$this->QuarkURL->getURL('access-denied'));
           exit(0);
         }
       }
     }
 
     $this->setDefaultAccessLevel(1);
+  }
+
+  protected function setRoleAccess($role_id)
+  {
+    $this->access_role_ids = func_get_args();
   }
 
   protected function header($page_title = '', $sidebar = true)
@@ -49,7 +92,7 @@ class IngressMXController extends QuarkController
     }
 
     /*
-     * just render the view
+     * Render the view
      */
     $this->renderView('layout/header.php', array(
       'page_title' => $page_title,
@@ -66,35 +109,37 @@ class IngressMXController extends QuarkController
    * @param bool $render_style Render style
    * @return IngressMXController For method linking
    */
-  protected function renderPost($Post, $render_style)
+  protected function renderPost($Post, $render_style, $return = false)
   {
     switch ($render_style) {
       case INGRESSMX_RENDER_STYLE_FRONT_PAGE:
-        $this->renderView('post/post-front-page.php', array(
+        return $this->renderView('post/post-front-page.php', array(
           'render_style_class' => 'front-page',
           'Post'               => $Post,
-        ));
+          ), $return);
         break;
       case INGRESSMX_RENDER_STYLE_TEASER:
-        $this->renderView('post/post-teaser.php', array(
+        return $this->renderView('post/post-teaser.php', array(
           'render_style_class' => 'teaser',
           'Post'               => $Post,
-        ));
+          ), $return);
         break;
       case INGRESSMX_RENDER_STYLE_FULL:
-        $this->renderView('post/post-full.php', array(
+        return $this->renderView('post/post-full.php', array(
           'render_style_class' => 'full',
           'Post'               => $Post,
-        ));
-        break;
-      case INGRESSMX_RENDER_STYLE_COMMENT:
-        $this->renderView('post/post-comment.php', array(
-          'render_style_class' => 'comment',
-          'PostComment'        => $Post,
-        ));
+          ), $return);
         break;
     }
     return $this;
+  }
+  
+  protected function renderComment($Comment, $return = false)
+  {
+    return $this->renderView('post/post-comment.php', array(
+      'render_style_class' => 'comment',
+      'Comment'            => $Comment,
+      ), $return);
   }
 
   protected function formatDateTime($date_time)

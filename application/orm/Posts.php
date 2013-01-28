@@ -9,10 +9,21 @@ class Posts extends QuarkORM
 
   public function __construct()
   {
+    parent::__construct();
+    
     if (!$this->is_new) {
-      $this->User = $this->getParent('User');
+      $this->populate();
+    }
+  }
 
-      // Generate post URL
+  private function populate()
+  {
+    if (!isset($this->User)) {
+      $this->User = $this->getParent('User');
+    }
+
+    // Generate post URL
+    if (!isset($this->url)) {
       $Url = new QuarkURL();
       $this->url = $Url->getURL('post/'.$this->id);
     }
@@ -39,6 +50,21 @@ class Posts extends QuarkORM
     return $resume;
   }
 
+  protected function validate()
+  {
+    return true;
+  }
+
+  public function save()
+  {
+    if (parent::save() == false) {
+      return false;
+    } else {
+      $this->populate();
+      return true;
+    }
+  }
+
   /**
    * Return the comments number filtered by user faction
    */
@@ -53,7 +79,7 @@ class Posts extends QuarkORM
   {
     return $this->getChilds('Comments')
       ->where(array('faction' => $user_faction))
-      ->order('creation_date')
+      ->order('id')
       ->exec();
   }
 

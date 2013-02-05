@@ -13,15 +13,80 @@ class AdminUsersController extends IngressMXController
 
   public function index()
   {
+    // Lista de usuarios, con los no autorizados al inicio
     $users = User::query()
       ->find()
       ->order('authorized')
       ->order('id')
       ->exec();
 
+    // Lista de roles, para los select box
+    $roles = Roles::query()->find()->exec();
+
     $this->addViewVars(array(
       'users' => &$users,
+      'roles' => &$roles,
     ))->renderView();
+  }
+
+  /**
+   * Recibe la solicitud AJAX para cambiar el role de un usuario.
+   * Un email es enviado al usuario para notificarle sobre el cambio
+   * si falla el envio de email no importa.
+   */
+  public function ajaxChangeUserRole()
+  {
+    try {
+      // Actualizar el role del usuario
+      $User = User::query()->findByPk($_POST['user_id']);
+      $User->roles_id = $_POST['roles_id'];
+      $User->save();
+      
+      // Enviar respuesta al cliente, con el nuevo role del usuario
+      $this->setAjaxResponse(array(
+        'new_role_name' => $User->Role->name,
+      ));
+
+      // Enviar email al usuario para avisarle de su nuevo role
+      $PHPMailer = ingressmx_create_phpmailer();
+      $PHPMailer->Subject = 'Role de usuario modificado';
+      $PHPMailer->Body = $this->renderView('email/user-role-changed.php', array(
+        'User' => $User
+      ), true);
+      $PHPMailer->AddAddress($User->email, $User->user);
+      $PHPMailer->Send();
+
+    } catch (QuarkORMException $e) {
+      $this->setAjaxResponse(null, 'No se pudo cambiar el role del usuario', true);
+    } catch (phpmailerException $e) {
+      // Si el envio de email falla no importa, no es muy necesario.
+    }
+  }
+
+  /**
+   * Recibe la solicitud para reactivar la cuenta del usuario especificado
+   */
+  public function ajaxActivateUser()
+  {
+    try {
+      // Actualizar el campo "active" y notificar al usuario via email
+      $User = User::query()->findByPk($_POST['user_id']);
+      $User->active = 1;
+      $User->save();
+
+      $PHPMailer = ingressmx_create_phpmailer();
+      $PHPMailer->Subject = 'Cuenta reactivada';
+      $PHPMailer->Body = $this->renderView('email/user-unblocked.php', array(
+        'User' => $User
+      ), true);
+      $PHPMailer->AddAddress($User->email, $User->user);
+      $PHPMailer->Send();
+    } catch (QuarkORMException $e) {
+      $this->setAjaxResponse(null, 'No se pudo reactivar la cuenta', true);
+    } catch (phpmailerException $e) {
+      // Si el envio de email falla no importa, no es muy necesario.
+      Quark::log('Error al notificar reactivación: '.$e->)
+    }
   }
 
   /**

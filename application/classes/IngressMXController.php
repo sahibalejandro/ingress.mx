@@ -55,7 +55,12 @@ class IngressMXController extends QuarkController
        * roles can see it */
       if (count($this->access_role_ids) > 0) {
         if (array_search($this->User->roles_id, $this->access_role_ids) === false) {
-          header('Location:'.$this->QuarkURL->getURL('access-denied'));
+          if (!QUARK_AJAX) {
+            header('Location:'.$this->QuarkURL->getURL('access-denied'));
+          } else {
+            $this->setAjaxAccessDenied();
+            $this->__sendAjaxResponse();
+          }
           exit(0);
         }
       }

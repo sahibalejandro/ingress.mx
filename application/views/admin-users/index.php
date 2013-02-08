@@ -66,7 +66,7 @@ $this
   </tbody>
 </table>
 
-<!-- Dialogo para activar usuario -->
+<!-- Dialogo para bloquear usuario -->
 <div id="modal_block_user" class="modal hide fade">
   <form action="javascript:;" id="frm_block_user">
     <input type="hidden" name="user_id" id="block_user_id" value="0" />
@@ -84,7 +84,7 @@ $this
     </div>
   </form>
 </div>
-<!-- // Dialogo para activar usuario -->
+<!-- // Dialogo para bloquear usuario -->
 
 <!-- Dialogo para activar usuario -->
 <div id="modal_unblock_user" class="modal hide fade">

@@ -27,6 +27,9 @@ class User extends QuarkORM
     }
   }
 
+  /**
+   * Guarda los datos en DB
+   */
   public function save()
   {
     $return = parent::save();

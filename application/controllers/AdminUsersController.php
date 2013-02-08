@@ -60,6 +60,10 @@ class AdminUsersController extends IngressMXController
       $this->setAjaxResponse(null, 'No se pudo cambiar el role del usuario', true);
     } catch (phpmailerException $e) {
       // Si el envio de email falla no importa, no es muy necesario.
+      Quark::log('Error al notificar cambio de role: '
+        .PHP_EOL
+        .strip_tags($e->errorMessage())
+      );
     }
   }
 
@@ -85,8 +89,51 @@ class AdminUsersController extends IngressMXController
       $this->setAjaxResponse(null, 'No se pudo reactivar la cuenta', true);
     } catch (phpmailerException $e) {
       // Si el envio de email falla no importa, no es muy necesario.
-      Quark::log('Error al notificar reactivación: '.$e->)
+      Quark::log('Error al notificar reactivación: '
+        .PHP_EOL
+        .strip_tags($e->errorMessage())
+      );
     }
+  }
+
+  /**
+   * Recibe la solicitud para bloquear la cuenta del usuario especificado
+   */
+  public function ajaxDeactivateUser()
+  {
+    // Forzar a que el administrador proporcione un mensaje con razón del bloqueo.
+    $_POST['block_reason'] = trim($_POST['block_reason']);
+    if ($_POST['block_reason'] == '') {
+      $this->setAjaxResponse(null, 'Especifique la razón del bloqueo', true);
+    } else {
+      try {
+        // Obtener el ORM del usuario, asignar 0 (cero) al campo 'active' y guardar.
+        $User = User::query()->findByPk($_POST['user_id']);
+        $User->active = 0;
+        $User->save();
+
+        // Notificar por email al usuario de que ha sido bloqueado.
+        $PHPMailer = ingressmx_create_phpmailer();
+        $PHPMailer->Subject = 'Cuenta bloqueada';
+        $PHPMailer->Body = $this->renderView('email/user-blocked.php', array(
+          'User'         => $User,
+          'block_reason' => $_POST['block_reason'],
+        ), true);
+        $PHPMailer->AddAddress($User->email, $User->user);
+        $PHPMailer->Send();
+
+      } catch (QuarkORMException $e) {
+        $this->setAjaxResponse(null, 'No se pudo bloquear al usuario', true);
+      } catch (phpmailerException $e) {
+        // Si el envio de email falla no importa, no es muy necesario.
+        Quark::log('Error al notificar bloqueo: '
+          .PHP_EOL
+          .strip_tags($e->errorMessage())
+        );
+      }
+      /* END OF: try {...} catch {...} */
+    }
+    /* END OF: if($_POST['block_reason'] == '') */
   }
 
   /**
@@ -163,6 +210,10 @@ class AdminUsersController extends IngressMXController
       } catch (QuarkORMException $e) {
         $this->setAjaxResponse(null, 'No se pudieron guardar los cambios.', true);
       } catch (phpmailerException $e) {
+        Quark::log('Error al notificar autorización: '
+          .PHP_EOL
+          .strip_tags($e->errorMessage())
+        );
         $this->setAjaxResponse(null, 'Cambios realizados, pero no se pudo notificar al usuario.', true);
       }
     }

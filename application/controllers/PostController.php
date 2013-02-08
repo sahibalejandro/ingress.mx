@@ -1,6 +1,10 @@
 <?php
 class PostController extends IngressMXController
 {
+  /**
+   * Agrega un nuevo token a la lista de tokesn para comentar que esta en la
+   * sesión del usuario firmado.
+   */
   private function generateCommentToken($post_id)
   {
     // Get actual comment tokens array, if not defined create it.
@@ -24,9 +28,9 @@ class PostController extends IngressMXController
 
   /**
    * Show a post and comments.
-   * This method generate a post-token that validate when the user comment in this posts
-   * and a new post-token is generated to future comments, this way the user only
-   * can comment in posts that he are reading at this time.
+   * This method generate a post-token that validate when the user comment in this
+   * posts and a new post-token is generated to future comments, this way the user
+   * only can comment in posts that he are reading at this time.
    */
   public function read($post_id, $page = 1)
   {
@@ -56,7 +60,6 @@ class PostController extends IngressMXController
    */
   public function ajaxPostComment()
   {
-    sleep(2);
     // first validate post token
     $is_token_valid = false;
     $comment_tokens = $this->QuarkSess->get('comment_tokens');
@@ -83,8 +86,8 @@ class PostController extends IngressMXController
         $Comment->faction  = $this->User->faction;
         $Comment->content  = $_POST['comment_content'];
 
-        /* If save is successful return new token and comment render, else return
-         * error message */
+        /* If save is successful return new token and the comment render,
+         * else return the error message */
         if ($Comment->save()) {
           $this->setAjaxResponse(array(
             'new_token'    => $new_token,
@@ -94,7 +97,9 @@ class PostController extends IngressMXController
           $this->setAjaxResponse(null, 'No se puede guardar el comentario', true);
         }
       } catch (QuarkORMException $e) {
-        $this->setAjaxResponse(null, 'Error al tratar de guardar el comentario', true);
+        $msg = 'Error al tratar de guardar el comentario';
+        Quark::log($msg.': '.$e->getMessage());
+        $this->setAjaxResponse(null, $msg, true);
       }
     }
   }

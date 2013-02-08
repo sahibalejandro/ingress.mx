@@ -82,18 +82,22 @@ class IngressMXController extends QuarkController
     $main_menu_categories      = array();
     $secondary_menu_categories = array();
 
-    // Items for the main menu
-    $main_menu_categories = Categories::query()
-      ->find()
-      ->where(array('on_main_menu' => 1))
-      ->exec();
+    /* Categorias para el menu principal
+     * Solo categorias para el role del usuario firmado */
+    if ($this->User) {
+      $main_menu_categories = Categories::getCategoriesForRole(
+        $this->User->roles_id,
+        Categories::FOR_MAIN_MENU
+      );
+    }
 
-    // Secondary menu items only loaded when sidebar is visible
-    if ($sidebar) {
-      $secondary_menu_categories = Categories::query()
-        ->find()
-        ->where(array('on_secondary_menu' => 1))
-        ->exec();
+    /* Categorias para el menu secundario
+     * Solo categorias para el role del usuario firmado */
+    if ($sidebar && $this->User) {
+      $secondary_menu_categories = Categories::getCategoriesForRole(
+        $this->User->roles_id,
+        Categories::FOR_SECONDARY_MENU
+      );
     }
 
     /*

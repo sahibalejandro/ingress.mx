@@ -20,11 +20,13 @@ class HomeController extends IngressMXController
       $page = 1;
     }
 
-    // Get published posts filtered by 'on_front_page' and user faction
+    /* Obtener las publicaciones principales filtradas por el faction del usuario
+     * firmado, mostrando al inicio las publicaciones pegajosas */
     $posts = Posts::query()
       ->find()
       ->where(array('published' => 1, 'on_front_page' => 1))
       ->where("faction='*' OR faction='".$this->User->faction."'")
+      ->order('stick', 'desc')
       ->order('creation_date', 'desc')
       ->limit($posts_per_page * ($page - 1), $posts_per_page)
       ->exec();

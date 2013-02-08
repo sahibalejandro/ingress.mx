@@ -5,15 +5,13 @@ $this->renderPost($Post, INGRESSMX_RENDER_STYLE_FULL);
 ?>
 <div id="comments_container">
   <h3><a name="comments">Comentarios:</a></h3>
-  <?php
-  if (count($comments) == 0):
-    echo 'Sin comentarios';
-  else:
+  <?php if (count($comments) == 0): ?>
+    <div id="msg_no_comments">Sin comentarios</div>
+  <?php else:
     foreach($comments as $Comment):
       $this->renderComment($Comment);
     endforeach;
-  endif;
-  ?>
+  endif; ?>
 </div>
 <!-- END OF #comments_container -->
 

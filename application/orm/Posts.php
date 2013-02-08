@@ -68,17 +68,17 @@ class Posts extends QuarkORM
   /**
    * Return the comments number filtered by user faction
    */
-  public function getCommentsCount($user_faction)
+  public function getCommentsCount($faction)
   {
     return $this->countChilds('Comments')
-      ->where(array('faction' => $user_faction))
+      ->where(array('faction' => $faction))
       ->exec();
   }
 
-  public function getComments($user_faction)
+  public function getComments($faction)
   {
     return $this->getChilds('Comments')
-      ->where(array('faction' => $user_faction))
+      ->where(array('faction' => $faction))
       ->order('id')
       ->exec();
   }

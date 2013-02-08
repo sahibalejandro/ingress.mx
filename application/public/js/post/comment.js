@@ -8,6 +8,7 @@ $(document).on('ready', function (e)
   var $InputCommentToken = $('#comment_token');
   var $BtnSubmitComment  = $('#btn_submit_comment');
   var $CommentErrorMsg   = $('#comment_error_msg');
+  var $MsgNoComments     = $('#msg_no_comments');
   
   var btn_submit_comment_text_busy = 'Enviando...';
   var btn_submit_comment_text      = '';
@@ -20,8 +21,12 @@ $(document).on('ready', function (e)
       data: $FrmComment.serialize(),
       success: function (Response)
       {
+        /* Actualizar el token para realizar comentarios, agregar el nuevo
+         * comentario al documento, ocultar el mensaje "Sin comentarios" (solo
+         * cuando es el primer comentario) y limpiar el formulario de comentario */
         $InputCommentToken.val(Response.result.new_token);
         $CommentsContainer.append(Response.result.comment_html);
+        $MsgNoComments.remove();
         $FrmComment.trigger('reset');
       },
       fail: function (Response) {

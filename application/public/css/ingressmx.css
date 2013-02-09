@@ -197,12 +197,19 @@ textarea[readonly] {
   text-align: center;
 }
 
-.resistance {
-  color: #00c2ff;
+.resistance,
+.RESISTANCE {
+  color: #00c2ff !important;
 }
 
-.enligthened {
-  color: #28f428;
+.enligthened,
+.ENLIGTHENED {
+  color: #28f428 !important;
+}
+
+.secure {
+  color: #ff5555;
+  font-weight: bold;
 }
 
 /*
@@ -213,20 +220,20 @@ textarea[readonly] {
   padding-bottom: 10px;
 }
 
-.post .post-header {
+.post-header {
   padding-bottom: 10px;
 }
 
-.post .post-info {
+.post-info {
   color: #EBBC4A;
   font-size: 10px;
 }
 
-.post .post-content {
+.post-content {
   padding: 5px 0;
 }
 
-.post .post-footer {
+.post-footer {
   padding-top: 20px;
   text-align: right;
 }

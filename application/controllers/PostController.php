@@ -49,7 +49,7 @@ class PostController extends IngressMXController
     } else {
       $this->addViewVars(array(
         'Post'          => $Post,
-        'comments'      => $Post->getComments($this->User->faction),
+        'comments'      => $Post->getComments($this->User),
         'comment_token' => $this->generateCommentToken($Post->id),
       ))->renderView();
     }

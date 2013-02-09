@@ -6,6 +6,7 @@ class Posts extends QuarkORM
 
   public $User;
   public $url;
+  private $is_secure;
 
   public function __construct()
   {
@@ -21,6 +22,9 @@ class Posts extends QuarkORM
     if (!isset($this->User)) {
       $this->User = $this->getParent('User');
     }
+
+    // Define si el post actual es seguro o no
+    $this->is_secure = ($this->faction != '*' || $this->secure_comments == 'S');
 
     // Generate post URL
     if (!isset($this->url)) {
@@ -66,21 +70,44 @@ class Posts extends QuarkORM
   }
 
   /**
-   * Return the comments number filtered by user faction
+   * Devuelve el número de comentarios en el post
+   * si el post es "comment_secure" solo se cuentan los comments del faction del
+   * usuario firmado
+   * 
+   * @param User $User Usuario firmado
+   * @return int
    */
-  public function getCommentsCount($faction)
+  public function getCommentsCount(User $User)
   {
-    return $this->countChilds('Comments')
-      ->where(array('faction' => $faction))
-      ->exec();
+    $QueryBuilder = $this->countChilds('Comments');
+    if ($this->is_secure) {
+      $QueryBuilder->where(array('faction' => $User->faction));
+    }
+    return $QueryBuilder->exec();
   }
 
-  public function getComments($faction)
+  /**
+   * Devuelve un array de objeto de clase Comments, que representan los comentarios
+   * del post actual, opcionalmente con un $offset y $limit para paginación.
+   * Si el post es "comment_secure" solo se traen los comments del faction del
+   * usuario firmado
+   * 
+   * @param User $User Usuario firmado
+   * @return int
+   */
+  public function getComments(User $User, $offset = 0, $limit = 10)
   {
-    return $this->getChilds('Comments')
-      ->where(array('faction' => $faction))
-      ->order('id')
-      ->exec();
+    $QueryBuilder = $this->getChilds('Comments');
+
+    if ($this->is_secure) {
+      $QueryBuilder->where(array('faction' => $User->faction));
+    }
+    return $QueryBuilder->order('id')->exec();
+  }
+
+  public function isSecure()
+  {
+    return $this->is_secure;
   }
 
   public static function query()

@@ -44,7 +44,7 @@
         <li><a href="">Inicio</a></li>
         <li><a href="<?php echo $this->QuarkURL->getURL('categories'); ?>">Categorías</a></li>
         <?php foreach ($main_menu_categories as $Category): ?>
-        <li><a href="<?php echo $this->QuarkURL->getURL('categories/'.$Category->id); ?>"><?php echo $this->QuarkStr->esc($Category->name); ?></a></li>
+        <li><a href="<?php echo $Category->url; ?>"><?php echo $this->QuarkStr->esc($Category->name); ?></a></li>
         <?php endforeach; ?>
         <li><a href="http://www.ingress.com/intel" target="_blank">Intel</a></li>
       </ul>
@@ -85,7 +85,7 @@
       <div id="sidebar" class="span2 hidden-phone">
         <ul class="nav nav-pills nav-stacked">
           <?php foreach ($secondary_menu_categories as $Category): ?>
-          <li><a href="<?php echo $this->QuarkURL->getURL('categories/'.$Category->id); ?>"><?php echo $this->QuarkStr->esc($Category->name); ?></a></li>
+          <li><a href="<?php echo $Category->url; ?>"><?php echo $this->QuarkStr->esc($Category->name); ?></a></li>
           <?php endforeach; ?>
         </ul>
       </div>

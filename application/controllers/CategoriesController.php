@@ -6,7 +6,10 @@ class CategoriesController extends IngressMXController
    */
   public function index()
   {
-
+    $categories = Categories::getAvailableCategoriesForUser($this->User);
+    $this->addViewVars(array(
+      'categories' => &$categories,
+    ))->renderView();
   }
 
   /**
@@ -37,7 +40,7 @@ class CategoriesController extends IngressMXController
         ->where(array('published' => 1))
         ->where("faction='*' OR faction='".$this->User->faction."'")
         ->order('stick', 'desc')
-        ->order('id', 'desc')
+        ->order('creation_date', 'desc')
         ->limit($posts_per_page * ($page - 1), $posts_per_page)
         ->exec();
 

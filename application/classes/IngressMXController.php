@@ -85,8 +85,8 @@ class IngressMXController extends QuarkController
     /* Categorias para el menu principal
      * Solo categorias para el role del usuario firmado */
     if ($this->User) {
-      $main_menu_categories = Categories::getCategoriesForRole(
-        $this->User->roles_id,
+      $main_menu_categories = Categories::getAvailableCategoriesForUser(
+        $this->User,
         Categories::FOR_MAIN_MENU
       );
     }
@@ -94,8 +94,8 @@ class IngressMXController extends QuarkController
     /* Categorias para el menu secundario
      * Solo categorias para el role del usuario firmado */
     if ($sidebar && $this->User) {
-      $secondary_menu_categories = Categories::getCategoriesForRole(
-        $this->User->roles_id,
+      $secondary_menu_categories = Categories::getAvailableCategoriesForUser(
+        $this->User,
         Categories::FOR_SECONDARY_MENU
       );
     }
@@ -151,6 +151,12 @@ class IngressMXController extends QuarkController
       ), $return);
   }
 
+  /**
+   * Formatea un DATETIME de MySQL a un formato más amigable
+   * 
+   * @param string $date_time
+   * @return string
+   */
   protected function formatDateTime($date_time)
   {
     return mb_convert_case(
@@ -158,6 +164,63 @@ class IngressMXController extends QuarkController
       MB_CASE_TITLE,
       'UTF-8'
     );
+  }
+
+  /**
+   * Muestra el tiempo transcurrido desde el DATETIME de MySQL hasta la actualidad
+   * El formato de salida debe ser identico al plugin jquery.elapsedtime.js
+   * 
+   * @param string $date_time
+   * @return string
+   */
+  protected function formatElapsedTime($date_time)
+  {
+    $timestamp   = strtotime($date_time);
+    $seconds     = time() - $timestamp;
+    $minutes     = round($seconds / 60);
+    $hours       = round($seconds / 3600);
+    $days        = round($seconds / 86400);
+    $date_string = '';
+
+    if ($seconds < 60) {
+      // Segundos
+      if ($seconds < 2) {
+        $date_string = 'hace '.$seconds.' segundo';
+      } else {
+        $date_string = 'hace '.$seconds.' segundos';
+      }
+    } else if ($minutes < 60) {
+      // Minutos
+      if ($minutes < 2) {
+        $date_string = 'hace '.$minutes.' minuto';
+      } else {
+        $date_string = 'hace '.$minutes.' minutos';
+      }
+    } else if ($hours < 24) {
+      // Horas
+      if ($hours < 2) {
+        $date_string = 'hace '.$hours.' hora';
+      } else {
+        $date_string = 'hace '.$hours.' horas';
+      }
+    } else if ($days < 5) {
+      // Días
+      if ($days < 2) {
+        $date_string = 'ayer';
+      } else {
+        $date_string = 'hace '.$days.' días';
+      }
+    } else {
+      $date_string = 'el '
+        .ucfirst(strftime('%a.', $timestamp))
+        .' ' .strftime('%e', $timestamp)
+        .' de ' .ucfirst(strftime('%b.', $timestamp))
+        .' ' .strftime('%Y', $timestamp)
+        .', ' .strftime('%H', $timestamp)
+        .':' .strftime('%M', $timestamp)
+        .' Hrs.';
+    }
+    return $date_string;
   }
 
   protected function footer()

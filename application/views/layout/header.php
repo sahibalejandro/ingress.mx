@@ -87,6 +87,7 @@
           <?php foreach ($secondary_menu_categories as $Category): ?>
           <li><a href="<?php echo $Category->url; ?>"><?php echo $this->QuarkStr->esc($Category->name); ?></a></li>
           <?php endforeach; ?>
+          <li><a href="<?php echo $this->QuarkURL->getURL('my-locale'); ?>">Mi Localidad</a></li>
         </ul>
       </div>
       <!-- // Side bar -->

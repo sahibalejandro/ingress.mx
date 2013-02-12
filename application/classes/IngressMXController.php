@@ -223,6 +223,29 @@ class IngressMXController extends QuarkController
     return $date_string;
   }
 
+  /**
+   * Manda a buffer el código HTML para mostrar la ruta de categorias a las que pertenece
+   * una categoria especificada por $Category
+   * 
+   * @param Categories $Post
+   */
+  public function renderCategoryPath(Categories $Category, $include_first = true)
+  {
+    $categories     = array();
+    
+    if ($include_first) {
+      $categories[] = $Category;
+    }
+
+    $ParentCategory = $Category->getParent('Categories');
+    while ($ParentCategory) {
+      $categories[] = $ParentCategory;
+      $ParentCategory = $ParentCategory->getParent('Categories');
+    }
+    $categories = array_reverse($categories);
+    $this->renderView('post/post-path.php', array('categories' => $categories));
+  }
+
   protected function footer()
   {
     $this->renderView('layout/footer.php');

@@ -4,8 +4,23 @@ $this->header($Category->name);
 if (count($posts) == 0):
   $this->renderView('layout/no-more-content.php');
 else: ?>
+<div class="categories-path"><?php
+  $this->renderCategoryPath($Category, false);
+?></div>
 <div class="page-header">
   <h3><?php echo $this->QuarkStr->esc($Category->name); ?></h3>
+  <?php
+  // Mostrar sub-categorias si existen
+  $sub_categories = $Category->getChilds('Categories')->exec();
+  if (count($sub_categories) > 0): ?>
+    <div class="sub-categories">
+    <?php foreach ($sub_categories as $SubCategory): ?>
+    &bull; <a href="<?php echo $SubCategory->url; ?>"><?php echo $this->QuarkStr->esc($SubCategory->name); ?></a>
+    <?php endforeach; ?>
+    </div>
+  <?php endif;
+  /* END OF: Sub-categories */
+  ?>
 </div>
 <?php
 foreach ($posts as $Post):

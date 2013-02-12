@@ -59,7 +59,7 @@ class Categories extends QuarkORM
     // Crear el SQL general
     $sql = 'SELECT C.*, CP.* FROM categories C
       LEFT JOIN categories_permissions CP ON (CP.categories_id = C.id)
-      WHERE CP.roles_id IS NULL OR CP.roles_id = :role_id';
+      WHERE (CP.roles_id IS NULL OR CP.roles_id = :role_id)';
 
     // Agregar filtro de menu
     if ($menu_filter == self::FOR_MAIN_MENU) {

@@ -1,5 +1,6 @@
 <div class="post <?php echo $render_style_class ?>">
   <div class="post-header">
+    <div class="categories-path"><?php $this->renderCategoryPath($Post->getParent('Categories')); ?></div>
     <h3><a href="<?php echo $Post->url; ?>"><?php
       echo $this->QuarkStr->esc($Post->title);
     ?></a></h3>

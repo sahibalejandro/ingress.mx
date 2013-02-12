@@ -97,7 +97,7 @@
     
     // Inicializar el intervalo (solo si no ha sido iniciado antes)
     if (time_interval_id == null) {
-      setInterval(update_elements, 10000);
+      time_interval_id = setInterval(update_elements, 10000);
     }
 
     return this;
